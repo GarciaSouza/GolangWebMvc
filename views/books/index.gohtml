@@ -1,5 +1,6 @@
 {{define "content"}}
 <h1>Books</h1>
+<p><a href="/books/new">Register new book</a></p>
 {{range .}}
 <p><a href="/books/{{hexstr .ID}}">{{.Isbn}}</a> - {{.Title}} - {{.Author}} - {{.Price}} </p>
 {{end}}

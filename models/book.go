@@ -15,16 +15,6 @@ type Book struct {
 	Price  float32       `json:"price" bson:"price"`
 }
 
-//FieldError Custom field error
-type FieldError struct {
-	Err       error
-	FieldName string
-}
-
-func (fe *FieldError) Error() string {
-	return fe.FieldName + ": " + fe.Err.Error()
-}
-
 // Business
 
 //AllBooks Get all books

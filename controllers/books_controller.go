@@ -7,14 +7,13 @@ import (
 	"io"
 	"net/http"
 	"path"
+	"strings"
 
 	"gopkg.in/mgo.v2/bson"
-
-	"github.com/julienschmidt/httprouter"
 )
 
 //BookIndex GET /books
-func BookIndex(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+func BookIndex(w http.ResponseWriter, req *http.Request) {
 	bks, err := models.AllBooks()
 	if err != nil {
 		fmt.Println(err)
@@ -26,10 +25,16 @@ func BookIndex(w http.ResponseWriter, r *http.Request, params httprouter.Params)
 }
 
 //BookShow GET /books/:id
-func BookShow(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-	bk, err := models.OneBookByID(bson.ObjectIdHex(params.ByName("id")))
+func BookShow(w http.ResponseWriter, req *http.Request) {
+	paths := strings.Split(req.URL.Path, "/")
+	paths = paths[1:]
+	if len(paths) < 2 {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	}
+
+	id := paths[1]
+	bk, err := models.OneBookByID(bson.ObjectIdHex(id))
 	if err != nil {
-		fmt.Println(err)
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 
@@ -38,27 +43,27 @@ func BookShow(w http.ResponseWriter, req *http.Request, params httprouter.Params
 }
 
 //BookNew GET /books/new
-func BookNew(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+func BookNew(w http.ResponseWriter, req *http.Request) {
 }
 
 //BookCreate POST /books
-func BookCreate(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+func BookCreate(w http.ResponseWriter, req *http.Request) {
 }
 
 //BookEdit GET /books/:id/edit
-func BookEdit(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+func BookEdit(w http.ResponseWriter, req *http.Request) {
 }
 
 //BookUpdate POST /books/:id
-func BookUpdate(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+func BookUpdate(w http.ResponseWriter, req *http.Request) {
 }
 
 //BookDelete GET /books/:id/delete
-func BookDelete(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+func BookDelete(w http.ResponseWriter, req *http.Request) {
 }
 
 //BookDeleteConfirm POST /books/:id/delete
-func BookDeleteConfirm(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+func BookDeleteConfirm(w http.ResponseWriter, req *http.Request) {
 }
 
 // Mapper req to model
