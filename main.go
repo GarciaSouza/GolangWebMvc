@@ -40,7 +40,6 @@ func booksID(w http.ResponseWriter, req *http.Request) {
 	}
 
 	id := paths[1]
-	id = strings.Trim(id, " ")
 
 	if len(id) <= 0 {
 		http.Error(w, http.StatusText(400), http.StatusBadRequest)
@@ -60,7 +59,6 @@ func booksID(w http.ResponseWriter, req *http.Request) {
 		} else if len(paths) == 3 {
 			if bson.IsObjectIdHex(id) {
 				action := paths[2]
-				action = strings.Trim(action, " ")
 
 				if action == "edit" {
 					// GET /books/:id/edit

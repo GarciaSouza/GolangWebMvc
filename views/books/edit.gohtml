@@ -1,0 +1,16 @@
+{{define "content"}}
+
+<h1>Edit Book</h1>
+<form action="/books/{{hexstr .One.ID}}" method="POST">
+
+{{if .Errors}}
+  {{.Errors}}
+{{end}}
+
+{{template "form" .}}
+
+<button type="submit">Save</button>
+<a href="/books/{{hexstr .One.ID}}">Back</a>
+</form>
+
+{{end}}
