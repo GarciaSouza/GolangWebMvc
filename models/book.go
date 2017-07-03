@@ -15,6 +15,16 @@ type Book struct {
 	Price  float32       `json:"price" bson:"price"`
 }
 
+//FieldError Custom field error
+type FieldError struct {
+	Err       error
+	FieldName string
+}
+
+func (fe *FieldError) Error() string {
+	return fe.FieldName + ": " + fe.Err.Error()
+}
+
 // Business
 
 //AllBooks Get all books
@@ -30,6 +40,50 @@ func OneBookByIsbn(isbn string) (Book, error) {
 //OneBookByID Find one book by ID
 func OneBookByID(id bson.ObjectId) (Book, error) {
 	return getByID(id)
+}
+
+//PutBook Insert a new book
+func PutBook(book Book) (Book, []FieldError) {
+	var err error
+
+	fe := validateSaveBook(book)
+	if len(fe) > 0 {
+		return book, fe
+	}
+
+	book, err = createNew(book)
+
+	if err != nil {
+		fe = append(fe, FieldError{Err: err, FieldName: ""})
+	}
+
+	return book, fe
+}
+
+//UpdateBook Update a existing book
+func UpdateBook(book Book) (Book, []FieldError) {
+	var err error
+
+	fe := validateEditBook(book)
+	if len(fe) > 0 {
+		return book, fe
+	}
+
+	book, err = update(book)
+	if err != nil {
+		fe = append(fe, FieldError{Err: err, FieldName: ""})
+	}
+
+	return book, fe
+}
+
+//DeleteBook Delete a existing book
+func DeleteBook(book Book) []FieldError {
+	fe := validateRemoveBook(book)
+	if err := delete(book); err != nil {
+		fe = append(fe, FieldError{Err: err, FieldName: ""})
+	}
+	return fe
 }
 
 // CRUD
@@ -71,7 +125,7 @@ func createNew(book Book) (Book, error) {
 }
 
 func update(book Book) (Book, error) {
-	err := config.Books.Update(bson.M{"isbn": book.Isbn}, &book)
+	err := config.Books.Update(bson.M{"_id": book.ID}, &book)
 	if err != nil {
 		return book, err
 	}
@@ -79,18 +133,22 @@ func update(book Book) (Book, error) {
 }
 
 func delete(book Book) error {
-	return config.Books.Remove(bson.M{"isbn": book.Isbn})
+	return config.Books.Remove(bson.M{"_id": book.ID})
 }
 
 // Validators
 
-/*
-func validateSaveBook(book Book) []error {
+func validateSaveBook(book Book) []FieldError {
+	fe := []FieldError{}
+	return fe
 }
 
-func validateEditBook(book Book) []error {
+func validateEditBook(book Book) []FieldError {
+	fe := []FieldError{}
+	return fe
 }
 
-func validateRemoveBook(book Book) []error {
+func validateRemoveBook(book Book) []FieldError {
+	fe := []FieldError{}
+	return fe
 }
-*/
