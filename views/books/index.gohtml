@@ -1,0 +1,5 @@
+{{define "content"}}
+{{range .}}
+<p><a href="/books/{{hexstr .ID}}">{{.Isbn}}</a> - {{.Title}} - {{.Author}} - {{.Price}} </p>
+{{end}}
+{{end}}
