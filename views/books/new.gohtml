@@ -3,10 +3,7 @@
 <h1>New Book</h1>
 <form action="/books" method="POST">
 
-{{if .Errors}}
-  {{.Errors}}
-{{end}}
-
+{{template "errors" .}}
 {{template "form" .}}
 
 <button type="submit">Save</button>

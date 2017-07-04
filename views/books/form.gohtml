@@ -1,19 +1,15 @@
 {{define "form"}}
 
-<p>
-Isbn:<br/><input name="Isbn" type="text" value="{{.Data.Isbn}}" />
-</p>
+<h4>Title</h4>
+<p>Title:<br/><input name="Title" type="text" value="{{.Data.Title}}" /></p>
 
-<p>
-Title:<br/><input name="Title" type="text" value="{{.Data.Title}}" />
-</p>
+<h4>Author</h4>
+<p><input name="Author" type="text" value="{{.Data.Author}}" /></p>
 
-<p>
-Author:<br/><input name="Author" type="text" value="{{.Data.Author}}" />
-</p>
+<h4>Title</h4>
+<p><input name="Isbn" type="text" value="{{.Data.Isbn}}" /></p>
 
-<p>
-Price:<br/><input name="Price" type="text" value="{{.Data.Price}}" />
-</p>
+<h4>Price</h4>
+<p><input name="Price" type="text" value="{{.Data.Price}}" /></p>
 
 {{end}}

@@ -3,10 +3,7 @@
 <h1>Edit Book</h1>
 <form action="/books/{{hexstr .Data.ID}}" method="POST">
 
-{{if .Errors}}
-  {{.Errors}}
-{{end}}
-
+{{template "errors" .}}
 {{template "form" .}}
 
 <button type="submit">Save</button>

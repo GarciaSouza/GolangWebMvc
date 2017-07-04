@@ -1,21 +1,17 @@
 {{define "content"}}
-<h1>Books</h1>
+<h1>Book</h1>
 
-<p>
-Isbn: {{.Data.Isbn}}
-</p>
+<h4>Title</h4>
+<p>{{.Data.Title}}</p>
 
-<p>
-Title: {{.Data.Title}}
-</p>
+<h4>Author</h4>
+<p>{{.Data.Author}}</p>
 
-<p>
-Author: {{.Data.Author}}
-</p>
+<h4>Isbn</h4>
+<p>{{.Data.Isbn}}</p>
 
-<p>
-Price: {{.Data.Price}}
-</p>
+<h4>Price</h4>
+<p>{{.Data.Price}}</p>
 
 <a href="/books/{{hexstr .Data.ID}}/edit">Edit</a>
 <a href="/books">Back</a>

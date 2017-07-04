@@ -18,25 +18,6 @@ type ViewResult struct {
 	Data   interface{}
 }
 
-//NewBookViewResult Create a ViewResult ready to BookController
-func NewBookViewResult() ViewResult {
-	vr := ViewResult{Errors: make(map[string][]error)}
-
-	fields := []string{
-		"ID",
-		"Isbn",
-		"Title",
-		"Author",
-		"Price",
-	}
-
-	for _, field := range fields {
-		vr.Errors[field] = []error{}
-	}
-
-	return vr
-}
-
 // Controller's functions
 
 func hexstr(id bson.ObjectId) string {

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"golang-webmvc/models"
 	"net/http"
 	"path"
@@ -14,7 +13,6 @@ import (
 func BookIndex(w http.ResponseWriter, req *http.Request) {
 	bks, err := models.AllBooks()
 	if err != nil {
-		fmt.Println(err)
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 
@@ -57,6 +55,7 @@ func BookShow(w http.ResponseWriter, req *http.Request) {
 func BookNew(w http.ResponseWriter, req *http.Request) {
 	tpladdr := []string{
 		path.Join("views", "books", "new.gohtml"),
+		path.Join("views", "books", "errors.gohtml"),
 		path.Join("views", "books", "form.gohtml"),
 	}
 
@@ -67,11 +66,12 @@ func BookNew(w http.ResponseWriter, req *http.Request) {
 func BookCreate(w http.ResponseWriter, req *http.Request) {
 	var ferr []models.FieldError
 	bk := models.Book{ID: bson.NewObjectId()}
-	vr := NewBookViewResult()
+	vr := ViewResult{Errors: make(map[string][]error)}
 
 	if bk, ferr = parsebook(bk, req); ferr != nil && len(ferr) > 0 {
 		tpladdr := []string{
 			path.Join("views", "books", "new.gohtml"),
+			path.Join("views", "books", "errors.gohtml"),
 			path.Join("views", "books", "form.gohtml"),
 		}
 		vr.Data = bk
@@ -83,6 +83,7 @@ func BookCreate(w http.ResponseWriter, req *http.Request) {
 	if bk, ferr = models.PutBook(bk); ferr != nil && len(ferr) > 0 {
 		tpladdr := []string{
 			path.Join("views", "books", "new.gohtml"),
+			path.Join("views", "books", "errors.gohtml"),
 			path.Join("views", "books", "form.gohtml"),
 		}
 		vr.Data = bk
@@ -121,6 +122,7 @@ func BookEdit(w http.ResponseWriter, req *http.Request) {
 
 	tpladdr := []string{
 		path.Join("views", "books", "edit.gohtml"),
+		path.Join("views", "books", "errors.gohtml"),
 		path.Join("views", "books", "form.gohtml"),
 	}
 
@@ -148,12 +150,13 @@ func BookUpdate(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	vr := NewBookViewResult()
+	vr := ViewResult{Errors: make(map[string][]error)}
 	var ferr []models.FieldError
 
 	if bk, ferr = parsebook(bk, req); ferr != nil && len(ferr) > 0 {
 		tpladdr := []string{
 			path.Join("views", "books", "edit.gohtml"),
+			path.Join("views", "books", "errors.gohtml"),
 			path.Join("views", "books", "form.gohtml"),
 		}
 		vr.Data = bk
@@ -165,6 +168,7 @@ func BookUpdate(w http.ResponseWriter, req *http.Request) {
 	if bk, ferr = models.UpdateBook(bk); ferr != nil && len(ferr) > 0 {
 		tpladdr := []string{
 			path.Join("views", "books", "edit.gohtml"),
+			path.Join("views", "books", "errors.gohtml"),
 			path.Join("views", "books", "form.gohtml"),
 		}
 		vr.Data = bk
