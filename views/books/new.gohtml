@@ -1,7 +1,7 @@
 {{define "content"}}
 
-<h1>Edit Book</h1>
-<form action="/books/{{hexstr .Data.ID}}" method="POST">
+<h1>New Book</h1>
+<form action="/books" method="POST">
 
 {{if .Errors}}
   {{.Errors}}
@@ -10,7 +10,7 @@
 {{template "form" .}}
 
 <button type="submit">Save</button>
-<a href="/books/{{hexstr .Data.ID}}">Back</a>
+<a href="/books">Back</a>
 </form>
 
 {{end}}

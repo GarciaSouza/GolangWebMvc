@@ -2,21 +2,21 @@
 <h1>Books</h1>
 
 <p>
-Isbn: {{.Isbn}}
+Isbn: {{.Data.Isbn}}
 </p>
 
 <p>
-Title: {{.Title}}
+Title: {{.Data.Title}}
 </p>
 
 <p>
-Author: {{.Author}}
+Author: {{.Data.Author}}
 </p>
 
 <p>
-Price: {{.Price}}
+Price: {{.Data.Price}}
 </p>
 
-<a href="/books/{{hexstr .ID}}/edit">Edit</a>
+<a href="/books/{{hexstr .Data.ID}}/edit">Edit</a>
 <a href="/books">Back</a>
 {{end}}

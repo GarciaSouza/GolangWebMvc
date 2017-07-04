@@ -14,13 +14,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-//BookResult A book view result
-type BookResult struct {
-	Errors []models.FieldError
-	One    models.Book
-	Data   []models.Book
-}
-
 //BookIndex GET /books
 func BookIndex(w http.ResponseWriter, req *http.Request) {
 	bks, err := models.AllBooks()
@@ -33,7 +26,7 @@ func BookIndex(w http.ResponseWriter, req *http.Request) {
 		path.Join("views", "books", "index.gohtml"),
 	}
 
-	view(w, tpladdr, bks)
+	view(w, tpladdr, ViewResult{Data: bks})
 }
 
 //BookShow GET /books/:id
@@ -61,15 +54,47 @@ func BookShow(w http.ResponseWriter, req *http.Request) {
 		path.Join("views", "books", "show.gohtml"),
 	}
 
-	view(w, tpladdr, bk)
+	view(w, tpladdr, ViewResult{Data: bk})
 }
 
 //BookNew GET /books/new
 func BookNew(w http.ResponseWriter, req *http.Request) {
+	tpladdr := []string{
+		path.Join("views", "books", "new.gohtml"),
+		path.Join("views", "books", "form.gohtml"),
+	}
+
+	view(w, tpladdr, ViewResult{Data: models.Book{}})
 }
 
 //BookCreate POST /books
 func BookCreate(w http.ResponseWriter, req *http.Request) {
+	var ferr []models.FieldError
+	bk := models.Book{ID: bson.NewObjectId()}
+
+	if bk, ferr = parse(bk, req); ferr != nil && len(ferr) > 0 {
+		tpladdr := []string{
+			path.Join("views", "books", "new.gohtml"),
+			path.Join("views", "books", "form.gohtml"),
+		}
+		view(w, tpladdr, ViewResult{Data: bk, Errors: ferr})
+		return
+	}
+
+	if bk, ferr = models.PutBook(bk); ferr != nil && len(ferr) > 0 {
+		tpladdr := []string{
+			path.Join("views", "books", "new.gohtml"),
+			path.Join("views", "books", "form.gohtml"),
+		}
+		view(w, tpladdr, ViewResult{Data: bk, Errors: ferr})
+		return
+	}
+
+	tpladdr := []string{
+		path.Join("views", "books", "show.gohtml"),
+	}
+
+	view(w, tpladdr, ViewResult{Data: bk})
 }
 
 //BookEdit GET /books/:id/edit
@@ -98,7 +123,7 @@ func BookEdit(w http.ResponseWriter, req *http.Request) {
 		path.Join("views", "books", "form.gohtml"),
 	}
 
-	view(w, tpladdr, BookResult{One: bk})
+	view(w, tpladdr, ViewResult{Data: bk})
 }
 
 //BookUpdate POST /books/:id
@@ -129,7 +154,7 @@ func BookUpdate(w http.ResponseWriter, req *http.Request) {
 			path.Join("views", "books", "edit.gohtml"),
 			path.Join("views", "books", "form.gohtml"),
 		}
-		view(w, tpladdr, BookResult{One: bk, Errors: ferr})
+		view(w, tpladdr, ViewResult{Data: bk, Errors: ferr})
 		return
 	}
 
@@ -138,7 +163,7 @@ func BookUpdate(w http.ResponseWriter, req *http.Request) {
 			path.Join("views", "books", "edit.gohtml"),
 			path.Join("views", "books", "form.gohtml"),
 		}
-		view(w, tpladdr, BookResult{One: bk, Errors: ferr})
+		view(w, tpladdr, ViewResult{Data: bk, Errors: ferr})
 		return
 	}
 
@@ -146,7 +171,7 @@ func BookUpdate(w http.ResponseWriter, req *http.Request) {
 		path.Join("views", "books", "show.gohtml"),
 	}
 
-	view(w, tpladdr, bk)
+	view(w, tpladdr, ViewResult{Data: bk})
 }
 
 //BookDelete GET /books/:id/delete
