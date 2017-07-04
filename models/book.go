@@ -70,9 +70,11 @@ func UpdateBook(book Book) (Book, []FieldError) {
 //DeleteBook Delete a existing book
 func DeleteBook(book Book) []FieldError {
 	fe := validateRemoveBook(book)
+
 	if err := delete(book); err != nil {
 		fe = append(fe, FieldError{Err: err, FieldName: ""})
 	}
+
 	return fe
 }
 
@@ -130,6 +132,7 @@ func delete(book Book) error {
 
 func validateSaveBook(book Book) []FieldError {
 	fe := []FieldError{}
+	//fe = append(fe, FieldError{FieldName: "Title", Err: errors.New("Choose a better Title")})
 	return fe
 }
 

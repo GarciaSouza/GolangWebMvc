@@ -7,5 +7,5 @@ type FieldError struct {
 }
 
 func (fe *FieldError) Error() string {
-	return fe.FieldName + ": " + fe.Err.Error()
+	return fe.Err.Error()
 }
