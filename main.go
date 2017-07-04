@@ -1,10 +1,12 @@
 package main
 
 import (
+	"golang-webmvc/config"
 	"golang-webmvc/controllers"
 	"net/http"
 	"strings"
 
+	"github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -15,46 +17,45 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 }
 
-func books(w http.ResponseWriter, req *http.Request) {
+func books(res http.ResponseWriter, req *http.Request) {
+	setSessionCookie(res, req)
 	if req.Method == http.MethodGet {
 		// GET /books
-		controllers.BookIndex(w, req)
+		controllers.BookIndex(res, req)
 	} else if req.Method == http.MethodPost {
 		// POST /books
-		controllers.BookCreate(w, req)
+		controllers.BookCreate(res, req)
 	} else {
-		http.Error(w, http.StatusText(404), http.StatusNotFound)
+		http.Error(res, http.StatusText(404), http.StatusNotFound)
 	}
 }
 
-func booksID(w http.ResponseWriter, req *http.Request) {
-	/*
-		router.POST("/books/:id", controllers.BookUpdate)
-		router.POST("/books/:id/delete", controllers.BookDeleteConfirm)
-	*/
+func booksID(res http.ResponseWriter, req *http.Request) {
+	setSessionCookie(res, req)
+
 	paths := strings.Split(req.URL.Path, "/")
 	paths = paths[1:]
 
 	if len(paths) < 2 && len(paths) > 3 {
-		http.Error(w, http.StatusText(404), http.StatusNotFound)
+		http.Error(res, http.StatusText(404), http.StatusNotFound)
 	}
 
 	id := paths[1]
 
 	if len(id) <= 0 {
-		http.Error(w, http.StatusText(400), http.StatusBadRequest)
+		http.Error(res, http.StatusText(400), http.StatusBadRequest)
 	}
 
 	if req.Method == http.MethodGet {
 		if len(paths) == 2 {
 			if id == "new" {
 				// GET /books/new
-				controllers.BookNew(w, req)
+				controllers.BookNew(res, req)
 			} else if bson.IsObjectIdHex(id) {
 				// GET /books/:id
-				controllers.BookShow(w, req)
+				controllers.BookShow(res, req)
 			} else {
-				http.Error(w, http.StatusText(400), http.StatusBadRequest)
+				http.Error(res, http.StatusText(400), http.StatusBadRequest)
 			}
 		} else if len(paths) == 3 {
 			if bson.IsObjectIdHex(id) {
@@ -62,34 +63,52 @@ func booksID(w http.ResponseWriter, req *http.Request) {
 
 				if action == "edit" {
 					// GET /books/:id/edit
-					controllers.BookEdit(w, req)
+					controllers.BookEdit(res, req)
 				} else if action == "delete" {
 					// GET /books/:id/delete
-					controllers.BookDelete(w, req)
+					controllers.BookDelete(res, req)
 				} else {
-					http.Error(w, http.StatusText(400), http.StatusBadRequest)
+					http.Error(res, http.StatusText(400), http.StatusBadRequest)
 				}
 			} else {
-				http.Error(w, http.StatusText(400), http.StatusBadRequest)
+				http.Error(res, http.StatusText(400), http.StatusBadRequest)
 			}
 		} else {
-			http.Error(w, http.StatusText(404), http.StatusNotFound)
+			http.Error(res, http.StatusText(404), http.StatusNotFound)
 		}
 	} else if req.Method == http.MethodPost {
 		if bson.IsObjectIdHex(id) {
 			if len(paths) == 2 {
 				// POST /books/:id
-				controllers.BookUpdate(w, req)
+				controllers.BookUpdate(res, req)
 			} else if len(paths) == 3 && paths[2] == "delete" {
 				// POST /books/:id/delete
-				controllers.BookDeleteConfirm(w, req)
+				controllers.BookDeleteConfirm(res, req)
 			} else {
-				http.Error(w, http.StatusText(400), http.StatusBadRequest)
+				http.Error(res, http.StatusText(400), http.StatusBadRequest)
 			}
 		} else {
-			http.Error(w, http.StatusText(400), http.StatusBadRequest)
+			http.Error(res, http.StatusText(400), http.StatusBadRequest)
 		}
 	} else {
-		http.Error(w, http.StatusText(404), http.StatusNotFound)
+		http.Error(res, http.StatusText(404), http.StatusNotFound)
+	}
+}
+
+func setSessionCookie(res http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		return
+	}
+
+	cookie, err := req.Cookie(config.SessionCookieName)
+
+	if err == http.ErrNoCookie {
+		cookie = &http.Cookie{
+			Name:     config.SessionCookieName,
+			Value:    uuid.NewV4().String(),
+			HttpOnly: true,
+			Path:     "/",
+		}
+		http.SetCookie(res, cookie)
 	}
 }
