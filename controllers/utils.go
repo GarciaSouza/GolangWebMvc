@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"golang-webmvc/config/log"
 	"golang-webmvc/models"
 	"html/template"
 	"io"
@@ -74,4 +75,14 @@ func parsebook(bk models.Book, req *http.Request) (models.Book, []models.FieldEr
 	}
 
 	return bk, ferr
+}
+
+func return500(res http.ResponseWriter, err error) bool {
+	if err != nil {
+		log.Error.Println(err)
+		http.Error(res, http.StatusText(500), http.StatusInternalServerError)
+		return true
+	}
+
+	return false
 }

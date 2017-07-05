@@ -1,7 +1,7 @@
 package main
 
 import (
-	"golang-webmvc/config"
+	"golang-webmvc/config/db"
 	"golang-webmvc/models"
 	"log"
 
@@ -10,9 +10,9 @@ import (
 )
 
 func main() {
-	config.Users.RemoveAll(bson.M{})
-	config.Books.RemoveAll(bson.M{})
-	config.Sessions.RemoveAll(bson.M{})
+	db.Users.RemoveAll(bson.M{})
+	db.Books.RemoveAll(bson.M{})
+	db.Sessions.RemoveAll(bson.M{})
 
 	adminPass := "admin#123"
 
@@ -30,7 +30,7 @@ func main() {
 		Password: bs,
 	}
 
-	err = config.Users.Insert(admin)
+	err = db.Users.Insert(admin)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -67,21 +67,21 @@ func main() {
 		Price:  48.90,
 	}
 
-	err = config.Books.Insert(book1)
+	err = db.Books.Insert(book1)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	err = config.Books.Insert(book2)
+	err = db.Books.Insert(book2)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = config.Books.Insert(book3)
+	err = db.Books.Insert(book3)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	err = config.Books.Insert(book4)
+	err = db.Books.Insert(book4)
 	if err != nil {
 		log.Fatalln(err)
 	}

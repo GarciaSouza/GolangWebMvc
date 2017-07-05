@@ -1,13 +1,12 @@
-package config
+package db
 
 import (
-	"fmt"
+	"golang-webmvc/config/log"
 
 	"gopkg.in/mgo.v2"
 )
 
-//DB MongoDB Database
-var DB *mgo.Database
+var db *mgo.Database
 
 //Books Books MongoDB Collection
 var Books *mgo.Collection
@@ -19,6 +18,11 @@ var Users *mgo.Collection
 var Sessions *mgo.Collection
 
 func init() {
+	Open()
+}
+
+//Open Try to stablish connection with MongoDB
+func Open() {
 	s, err := mgo.Dial("mongodb://localhost/bookstore")
 	if err != nil {
 		panic(err)
@@ -28,10 +32,10 @@ func init() {
 		panic(err)
 	}
 
-	DB = s.DB("bookstore")
-	Books = DB.C("books")
-	Users = DB.C("users")
-	Sessions = DB.C("sessions")
+	db = s.DB("bookstore")
+	Books = db.C("books")
+	Users = db.C("users")
+	Sessions = db.C("sessions")
 
-	fmt.Println("You connected to your mongo database.")
+	log.Info.Println("You connected to your mongo database")
 }

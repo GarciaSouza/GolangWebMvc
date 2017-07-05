@@ -1,7 +1,7 @@
 package models
 
 import (
-	"golang-webmvc/config"
+	"golang-webmvc/config/db"
 
 	"gopkg.in/mgo.v2/bson"
 )
@@ -82,7 +82,7 @@ func DeleteBook(book Book) []FieldError {
 
 func getAll() ([]Book, error) {
 	bks := []Book{}
-	err := config.Books.Find(bson.M{}).All(&bks)
+	err := db.Books.Find(bson.M{}).All(&bks)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +92,7 @@ func getAll() ([]Book, error) {
 
 func getByIsbn(isbn string) (Book, error) {
 	bk := Book{}
-	err := config.Books.Find(bson.M{"isbn": isbn}).One(&bk)
+	err := db.Books.Find(bson.M{"isbn": isbn}).One(&bk)
 	if err != nil {
 		return bk, err
 	}
@@ -101,7 +101,7 @@ func getByIsbn(isbn string) (Book, error) {
 
 func getByID(id bson.ObjectId) (Book, error) {
 	bk := Book{}
-	err := config.Books.Find(bson.M{"_id": id}).One(&bk)
+	err := db.Books.Find(bson.M{"_id": id}).One(&bk)
 	if err != nil {
 		return bk, err
 	}
@@ -109,7 +109,7 @@ func getByID(id bson.ObjectId) (Book, error) {
 }
 
 func createNew(book Book) (Book, error) {
-	err := config.Books.Insert(book)
+	err := db.Books.Insert(book)
 	if err != nil {
 		return book, err
 	}
@@ -117,7 +117,7 @@ func createNew(book Book) (Book, error) {
 }
 
 func update(book Book) (Book, error) {
-	err := config.Books.Update(bson.M{"_id": book.ID}, &book)
+	err := db.Books.Update(bson.M{"_id": book.ID}, &book)
 	if err != nil {
 		return book, err
 	}
@@ -125,7 +125,7 @@ func update(book Book) (Book, error) {
 }
 
 func delete(book Book) error {
-	return config.Books.Remove(bson.M{"_id": book.ID})
+	return db.Books.Remove(bson.M{"_id": book.ID})
 }
 
 // Validators
