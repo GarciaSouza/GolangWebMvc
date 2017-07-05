@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"path"
 	"strconv"
-
-	"gopkg.in/mgo.v2/bson"
 )
 
 //ViewResult A book view result
@@ -20,19 +18,11 @@ type ViewResult struct {
 
 // Controller's functions
 
-func hexstr(id bson.ObjectId) string {
-	return id.Hex()
-}
-
 func view(w io.Writer, tpladdr []string, data interface{}) error {
 	var tmpl *template.Template
 	var err error
 
-	var fm = template.FuncMap{
-		"hexstr": hexstr,
-	}
-
-	if tmpl, err = template.New("").Funcs(fm).ParseGlob(path.Join("views", "*.gohtml")); err != nil {
+	if tmpl, err = template.New("").ParseGlob(path.Join("views", "*.gohtml")); err != nil {
 		return err
 	}
 
@@ -72,7 +62,7 @@ func parsebook(bk models.Book, req *http.Request) (models.Book, []models.FieldEr
 	bk.Author = req.FormValue("Author")
 
 	p := req.FormValue("Price")
-	f64, err := strconv.ParseFloat(p, 32)
+	f64, err := strconv.ParseFloat(p, 64)
 	if err != nil {
 		f := models.FieldError{
 			FieldName: "Price",

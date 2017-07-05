@@ -1,13 +1,13 @@
 {{define "content"}}
 
 <h1>Edit Book</h1>
-<form action="/books/{{hexstr .Data.ID}}" method="POST">
+<form action="/books/{{.Data.ID.Hex}}" method="POST">
 
 {{template "errors" .}}
 {{template "form" .}}
 
 <button type="submit">Save</button>
-<a href="/books/{{hexstr .Data.ID}}">Back</a>
+<a href="/books/{{.Data.ID.Hex}}">Back</a>
 </form>
 
 {{end}}

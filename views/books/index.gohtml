@@ -2,6 +2,6 @@
 <h1>Books</h1>
 <p><a href="/books/new">Register new book</a></p>
 {{range .Data}}
-<p><a href="/books/{{hexstr .ID}}">{{.Isbn}}</a> - {{.Title}} - {{.Author}} - {{.Price}} </p>
+<p><a href="/books/{{.ID.Hex}}">{{.Isbn}}</a> - {{.Title}} - {{.Author}} - {{.Price}} </p>
 {{end}}
 {{end}}

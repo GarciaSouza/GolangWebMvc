@@ -13,6 +13,6 @@
 <h4>Price</h4>
 <p>{{.Data.Price}}</p>
 
-<a href="/books/{{hexstr .Data.ID}}/edit">Edit</a>
+<a href="/books/{{.Data.ID.Hex}}/edit">Edit</a>
 <a href="/books">Back</a>
 {{end}}
