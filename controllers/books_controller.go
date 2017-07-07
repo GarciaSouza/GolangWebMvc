@@ -21,7 +21,7 @@ func BookIndex(res http.ResponseWriter, req *http.Request) {
 		path.Join("views", "books", "index.gohtml"),
 	}
 
-	err = view(res, tpladdr, ViewResult{Data: bks})
+	err = view(res, req, tpladdr, bks, nil)
 	if return500(res, err) {
 		return
 	}
@@ -51,7 +51,7 @@ func BookShow(res http.ResponseWriter, req *http.Request) {
 		path.Join("views", "books", "show.gohtml"),
 	}
 
-	err = view(res, tpladdr, ViewResult{Data: bk})
+	err = view(res, req, tpladdr, bk, nil)
 	if return500(res, err) {
 		return
 	}
@@ -65,7 +65,7 @@ func BookNew(res http.ResponseWriter, req *http.Request) {
 		path.Join("views", "books", "form.gohtml"),
 	}
 
-	err := view(res, tpladdr, ViewResult{Data: models.Book{}})
+	err := view(res, req, tpladdr, models.NewBook(), nil)
 	if return500(res, err) {
 		return
 	}
@@ -74,38 +74,31 @@ func BookNew(res http.ResponseWriter, req *http.Request) {
 //BookCreate POST /books
 func BookCreate(res http.ResponseWriter, req *http.Request) {
 	var ferr []models.FieldError
-	bk := models.Book{ID: bson.NewObjectId()}
-	vr := ViewResult{Errors: make(map[string][]error)}
+	var err error
+	bk := models.NewBook()
+	tpladdr := []string{
+		path.Join("views", "books", "new.gohtml"),
+		path.Join("views", "books", "errors.gohtml"),
+		path.Join("views", "books", "form.gohtml"),
+	}
 
 	if bk, ferr = parsebook(bk, req); ferr != nil && len(ferr) > 0 {
-		tpladdr := []string{
-			path.Join("views", "books", "new.gohtml"),
-			path.Join("views", "books", "errors.gohtml"),
-			path.Join("views", "books", "form.gohtml"),
-		}
-		vr.Data = bk
-		feonmap(ferr, vr.Errors)
-		view(res, tpladdr, vr) //ViewResult{Data: bk, Errors: ferr})
+		err = view(res, req, tpladdr, bk, ferr)
+		return500(res, err)
 		return
 	}
 
 	if bk, ferr = models.PutBook(bk); ferr != nil && len(ferr) > 0 {
-		tpladdr := []string{
-			path.Join("views", "books", "new.gohtml"),
-			path.Join("views", "books", "errors.gohtml"),
-			path.Join("views", "books", "form.gohtml"),
-		}
-		vr.Data = bk
-		feonmap(ferr, vr.Errors)
-		view(res, tpladdr, vr) //ViewResult{Data: bk, Errors: ferr})
+		err = view(res, req, tpladdr, bk, ferr)
+		return500(res, err)
 		return
 	}
 
-	tpladdr := []string{
+	tpladdr = []string{
 		path.Join("views", "books", "show.gohtml"),
 	}
 
-	err := view(res, tpladdr, ViewResult{Data: bk})
+	err = view(res, req, tpladdr, bk, nil)
 	if return500(res, err) {
 		return
 	}
@@ -137,7 +130,7 @@ func BookEdit(res http.ResponseWriter, req *http.Request) {
 		path.Join("views", "books", "form.gohtml"),
 	}
 
-	err = view(res, tpladdr, ViewResult{Data: bk})
+	err = view(res, req, tpladdr, bk, nil)
 	if return500(res, err) {
 		return
 	}
@@ -164,38 +157,29 @@ func BookUpdate(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	vr := ViewResult{Errors: make(map[string][]error)}
-	var ferr []models.FieldError
-
-	if bk, ferr = parsebook(bk, req); ferr != nil && len(ferr) > 0 {
-		tpladdr := []string{
-			path.Join("views", "books", "edit.gohtml"),
-			path.Join("views", "books", "errors.gohtml"),
-			path.Join("views", "books", "form.gohtml"),
-		}
-		vr.Data = bk
-		feonmap(ferr, vr.Errors)
-		view(res, tpladdr, vr)
-		return
-	}
-
-	if bk, ferr = models.UpdateBook(bk); ferr != nil && len(ferr) > 0 {
-		tpladdr := []string{
-			path.Join("views", "books", "edit.gohtml"),
-			path.Join("views", "books", "errors.gohtml"),
-			path.Join("views", "books", "form.gohtml"),
-		}
-		vr.Data = bk
-		feonmap(ferr, vr.Errors)
-		view(res, tpladdr, vr)
-		return
-	}
-
 	tpladdr := []string{
+		path.Join("views", "books", "edit.gohtml"),
+		path.Join("views", "books", "errors.gohtml"),
+		path.Join("views", "books", "form.gohtml"),
+	}
+
+	if newbk, ferr := parsebook(*bk, req); ferr != nil && len(ferr) > 0 {
+		err = view(res, req, tpladdr, newbk, ferr)
+		return500(res, err)
+		return
+	}
+
+	if newbk, ferr := models.UpdateBook(*bk); ferr != nil && len(ferr) > 0 {
+		err = view(res, req, tpladdr, newbk, ferr)
+		return500(res, err)
+		return
+	}
+
+	tpladdr = []string{
 		path.Join("views", "books", "show.gohtml"),
 	}
 
-	err = view(res, tpladdr, ViewResult{Data: bk})
+	err = view(res, req, tpladdr, bk, nil)
 	if return500(res, err) {
 		return
 	}
@@ -226,7 +210,7 @@ func BookDelete(res http.ResponseWriter, req *http.Request) {
 		path.Join("views", "books", "errors.gohtml"),
 	}
 
-	err = view(res, tpladdr, ViewResult{Data: bk})
+	err = view(res, req, tpladdr, bk, nil)
 	if return500(res, err) {
 		return
 	}
@@ -253,17 +237,15 @@ func BookDeleteConfirm(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	vr := ViewResult{Errors: make(map[string][]error)}
 	var ferr []models.FieldError
 
-	if ferr = models.DeleteBook(bk); ferr != nil && len(ferr) > 0 {
+	if ferr = models.DeleteBook(*bk); ferr != nil && len(ferr) > 0 {
 		tpladdr := []string{
 			path.Join("views", "books", "delete.gohtml"),
 			path.Join("views", "books", "errors.gohtml"),
 		}
-		vr.Data = bk
-		feonmap(ferr, vr.Errors)
-		view(res, tpladdr, vr)
+		err = view(res, req, tpladdr, bk, ferr)
+		return500(res, err)
 		return
 	}
 
@@ -276,7 +258,7 @@ func BookDeleteConfirm(res http.ResponseWriter, req *http.Request) {
 		path.Join("views", "books", "index.gohtml"),
 	}
 
-	err = view(res, tpladdr, ViewResult{Data: bks})
+	err = view(res, req, tpladdr, bks, nil)
 	if return500(res, err) {
 		return
 	}

@@ -17,19 +17,26 @@ type Book struct {
 
 // Business
 
+//NewBook Create a new book
+func NewBook() Book {
+	return Book{
+		ID: bson.NewObjectId(),
+	}
+}
+
 //AllBooks Get all books
 func AllBooks() ([]Book, error) {
-	return getAll()
+	return getAllBook()
 }
 
 //OneBookByIsbn Find one book by Isbn
-func OneBookByIsbn(isbn string) (Book, error) {
-	return getByIsbn(isbn)
+func OneBookByIsbn(isbn string) (*Book, error) {
+	return getBookByIsbn(isbn)
 }
 
 //OneBookByID Find one book by ID
-func OneBookByID(id bson.ObjectId) (Book, error) {
-	return getByID(id)
+func OneBookByID(id bson.ObjectId) (*Book, error) {
+	return getBookByID(id)
 }
 
 //PutBook Insert a new book
@@ -41,7 +48,7 @@ func PutBook(book Book) (Book, []FieldError) {
 		return book, fe
 	}
 
-	book, err = createNew(book)
+	book, err = createNewBook(book)
 
 	if err != nil {
 		fe = append(fe, FieldError{Err: err, FieldName: ""})
@@ -59,7 +66,7 @@ func UpdateBook(book Book) (Book, []FieldError) {
 		return book, fe
 	}
 
-	book, err = update(book)
+	book, err = updateBook(book)
 	if err != nil {
 		fe = append(fe, FieldError{Err: err, FieldName: ""})
 	}
@@ -71,7 +78,7 @@ func UpdateBook(book Book) (Book, []FieldError) {
 func DeleteBook(book Book) []FieldError {
 	fe := validateRemoveBook(book)
 
-	if err := delete(book); err != nil {
+	if err := deleteBook(book); err != nil {
 		fe = append(fe, FieldError{Err: err, FieldName: ""})
 	}
 
@@ -80,7 +87,7 @@ func DeleteBook(book Book) []FieldError {
 
 // CRUD
 
-func getAll() ([]Book, error) {
+func getAllBook() ([]Book, error) {
 	bks := []Book{}
 	err := db.Books.Find(bson.M{}).All(&bks)
 	if err != nil {
@@ -90,8 +97,8 @@ func getAll() ([]Book, error) {
 	return bks, nil
 }
 
-func getByIsbn(isbn string) (Book, error) {
-	bk := Book{}
+func getBookByIsbn(isbn string) (*Book, error) {
+	var bk *Book
 	err := db.Books.Find(bson.M{"isbn": isbn}).One(&bk)
 	if err != nil {
 		return bk, err
@@ -99,8 +106,8 @@ func getByIsbn(isbn string) (Book, error) {
 	return bk, nil
 }
 
-func getByID(id bson.ObjectId) (Book, error) {
-	bk := Book{}
+func getBookByID(id bson.ObjectId) (*Book, error) {
+	var bk *Book
 	err := db.Books.Find(bson.M{"_id": id}).One(&bk)
 	if err != nil {
 		return bk, err
@@ -108,7 +115,7 @@ func getByID(id bson.ObjectId) (Book, error) {
 	return bk, nil
 }
 
-func createNew(book Book) (Book, error) {
+func createNewBook(book Book) (Book, error) {
 	err := db.Books.Insert(book)
 	if err != nil {
 		return book, err
@@ -116,7 +123,7 @@ func createNew(book Book) (Book, error) {
 	return book, nil
 }
 
-func update(book Book) (Book, error) {
+func updateBook(book Book) (Book, error) {
 	err := db.Books.Update(bson.M{"_id": book.ID}, &book)
 	if err != nil {
 		return book, err
@@ -124,7 +131,7 @@ func update(book Book) (Book, error) {
 	return book, nil
 }
 
-func delete(book Book) error {
+func deleteBook(book Book) error {
 	return db.Books.Remove(bson.M{"_id": book.ID})
 }
 

@@ -2,6 +2,7 @@ package db
 
 import (
 	"golang-webmvc/config/log"
+	"strings"
 
 	"gopkg.in/mgo.v2"
 )
@@ -36,6 +37,39 @@ func Open() {
 	Books = db.C("books")
 	Users = db.C("users")
 	Sessions = db.C("sessions")
+
+	cols, err := db.CollectionNames()
+	if err != nil {
+		panic(err)
+	}
+
+	colsj := strings.Join(cols, ",")
+
+	if !strings.Contains(colsj, "books") {
+		if err = Books.Create(&mgo.CollectionInfo{}); err != nil {
+			panic(err)
+		}
+	}
+
+	if !strings.Contains(colsj, "users") {
+		if err = Users.Create(&mgo.CollectionInfo{}); err != nil {
+			panic(err)
+		}
+	}
+
+	if !strings.Contains(colsj, "sessions") {
+		if err = Sessions.Create(&mgo.CollectionInfo{}); err != nil {
+			panic(err)
+		}
+	}
+
+	if err = Sessions.EnsureIndexKey("Key"); err != nil {
+		panic(err)
+	}
+
+	if err = Sessions.EnsureIndexKey("UserID"); err != nil {
+		panic(err)
+	}
 
 	log.Info.Println("You connected to your mongo database")
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"golang-webmvc/config"
 	"golang-webmvc/config/log"
 	"golang-webmvc/models"
 	"html/template"
@@ -9,17 +10,20 @@ import (
 	"net/http"
 	"path"
 	"strconv"
+	"time"
 )
 
 //ViewResult A book view result
 type ViewResult struct {
-	Errors map[string][]error
-	Data   interface{}
+	Data    interface{}
+	Errors  map[string][]error
+	Session *models.Session
+	User    *models.User
 }
 
-// Controller's functions
+// Controller's helper functions
 
-func view(w io.Writer, tpladdr []string, data interface{}) error {
+func view(res io.Writer, req *http.Request, tpladdr []string, data interface{}, errors []models.FieldError) error {
 	var tmpl *template.Template
 	var err error
 
@@ -33,25 +37,97 @@ func view(w io.Writer, tpladdr []string, data interface{}) error {
 		}
 	}
 
-	if err = tmpl.ExecuteTemplate(w, "master", data); err != nil {
+	vr := getviewresult(req, data, errors)
+
+	if err = tmpl.ExecuteTemplate(res, "master", vr); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func feonmap(afielderror []models.FieldError, mapOf map[string][]error) {
-	if afielderror == nil || mapOf == nil {
-		return
+func return500(res http.ResponseWriter, err error) bool {
+	if err != nil {
+		log.Error.Println(err)
+		http.Error(res, http.StatusText(500), http.StatusInternalServerError)
+		return true
 	}
 
-	for _, b := range afielderror {
-		if _, ok := mapOf[b.FieldName]; !ok {
-			mapOf[b.FieldName] = []error{}
-		}
-		mapOf[b.FieldName] = append(mapOf[b.FieldName], b.Err)
-	}
+	return false
 }
+
+func getsession(req *http.Request) *models.Session {
+	ssCookie, err := req.Cookie(config.SessionCookieName)
+	if err != nil {
+		log.Error.Println(err)
+		return nil
+	}
+
+	session, err := models.OneSessionByKey(ssCookie.Value)
+	if err != nil {
+		log.Error.Println(err)
+		return nil
+	}
+
+	if time.Now().Sub(session.LastActivity) > config.SessionTimeOut {
+		ferr := models.DeleteSession(*session)
+		if len(ferr) > 0 {
+			log.Error.Println(ferr)
+		}
+
+		return nil
+	}
+
+	session.LastActivity = time.Now()
+
+	newsession, ferr := models.UpdateSession(*session)
+	if len(ferr) > 0 {
+		log.Error.Println(ferr)
+	} else {
+		session = &newsession
+	}
+
+	return session
+}
+
+func getviewresult(req *http.Request, data interface{}, errors []models.FieldError) ViewResult {
+	vr := ViewResult{
+		Data:    nil,
+		Errors:  make(map[string][]error),
+		Session: nil,
+		User:    nil,
+	}
+
+	if data != nil {
+		vr.Data = data
+	}
+
+	if errors != nil {
+		for _, b := range errors {
+			if _, ok := vr.Errors[b.FieldName]; !ok {
+				vr.Errors[b.FieldName] = []error{}
+			}
+			vr.Errors[b.FieldName] = append(vr.Errors[b.FieldName], b.Err)
+		}
+	}
+
+	session := getsession(req)
+
+	if session != nil {
+		user, err := models.OneUserByID(session.UserID)
+		if err != nil {
+			log.Error.Println(err)
+			return vr
+		}
+
+		vr.Session = session
+		vr.User = user
+	}
+
+	return vr
+}
+
+// Model's helper functions
 
 func parsebook(bk models.Book, req *http.Request) (models.Book, []models.FieldError) {
 	ferr := []models.FieldError{}
@@ -75,14 +151,4 @@ func parsebook(bk models.Book, req *http.Request) (models.Book, []models.FieldEr
 	}
 
 	return bk, ferr
-}
-
-func return500(res http.ResponseWriter, err error) bool {
-	if err != nil {
-		log.Error.Println(err)
-		http.Error(res, http.StatusText(500), http.StatusInternalServerError)
-		return true
-	}
-
-	return false
 }
