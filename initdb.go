@@ -1,33 +1,42 @@
 package main
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"fmt"
+	"golang-webmvc/config"
 	"golang-webmvc/config/db"
 	"golang-webmvc/models"
+	"io"
 	"log"
 
-	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2/bson"
 )
 
 func main() {
+	var err error
 	db.Users.RemoveAll(bson.M{})
 	db.Books.RemoveAll(bson.M{})
 	db.Sessions.RemoveAll(bson.M{})
 
 	adminPass := "admin#123"
 
-	bs, err := bcrypt.GenerateFromPassword([]byte(adminPass), bcrypt.MinCost)
+	h := hmac.New(sha256.New, []byte(config.ApplicationSecretKey))
+	_, err = io.WriteString(h, adminPass)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
+	secret := fmt.Sprintf("%x", h.Sum(nil))
+
 	admin := models.User{
+		ID:       bson.NewObjectId(),
 		Username: "admin",
 		First:    "admin",
 		Last:     "",
 		Email:    "admin@localhost",
 		Role:     "Admin",
-		Password: bs,
+		Password: secret,
 	}
 
 	err = db.Users.Insert(admin)

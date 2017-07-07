@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"golang-webmvc/config"
+	"golang-webmvc/config/log"
 	"golang-webmvc/controllers"
 	"net/http"
 	"strings"
@@ -11,10 +13,26 @@ import (
 )
 
 func main() {
+	port := flag.String("port", "8182", "the port")
+
+	flag.Parse()
+
+	log.Info.Println("Running on", *port)
+
+	// Serve the public directory statically
 	http.Handle("/public/", http.StripPrefix("/public", http.FileServer(http.Dir("./public"))))
+
 	http.HandleFunc("/books", books)
 	http.HandleFunc("/books/", booksID)
-	http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/", home)
+	http.HandleFunc("/logout", logout)
+	http.HandleFunc("/login", login)
+	http.HandleFunc("/signup", signup)
+
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Error.Fatalln(err)
+	}
 }
 
 func books(res http.ResponseWriter, req *http.Request) {
@@ -90,6 +108,46 @@ func booksID(res http.ResponseWriter, req *http.Request) {
 		} else {
 			http.Error(res, http.StatusText(400), http.StatusBadRequest)
 		}
+	} else {
+		http.Error(res, http.StatusText(404), http.StatusNotFound)
+	}
+}
+
+func home(res http.ResponseWriter, req *http.Request) {
+	setSessionCookie(res, req)
+	if req.Method == http.MethodGet {
+		controllers.HomeIndex(res, req)
+	} else {
+		http.Error(res, http.StatusText(404), http.StatusNotFound)
+	}
+}
+
+func logout(res http.ResponseWriter, req *http.Request) {
+	setSessionCookie(res, req)
+	if req.Method == http.MethodGet {
+		controllers.HomeLogout(res, req)
+	} else {
+		http.Error(res, http.StatusText(404), http.StatusNotFound)
+	}
+}
+
+func login(res http.ResponseWriter, req *http.Request) {
+	setSessionCookie(res, req)
+	if req.Method == http.MethodGet {
+		controllers.HomeLogin(res, req)
+	} else if req.Method == http.MethodPost {
+		controllers.HomeLoginSubmit(res, req)
+	} else {
+		http.Error(res, http.StatusText(404), http.StatusNotFound)
+	}
+}
+
+func signup(res http.ResponseWriter, req *http.Request) {
+	setSessionCookie(res, req)
+	if req.Method == http.MethodGet {
+		controllers.HomeSignup(res, req)
+	} else if req.Method == http.MethodPost {
+		controllers.HomeSignupSubmit(res, req)
 	} else {
 		http.Error(res, http.StatusText(404), http.StatusNotFound)
 	}

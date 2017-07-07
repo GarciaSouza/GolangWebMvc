@@ -127,6 +127,22 @@ func getviewresult(req *http.Request, data interface{}, errors []models.FieldErr
 	return vr
 }
 
+func tplhome(tpls []string) []string {
+	newtpls := []string{}
+	for _, tpl := range tpls {
+		newtpls = append(newtpls, path.Join("views", "home", tpl+".gohtml"))
+	}
+	return newtpls
+}
+
+func tplbooks(tpls []string) []string {
+	newtpls := []string{}
+	for _, tpl := range tpls {
+		newtpls = append(newtpls, path.Join("views", "books", tpl+".gohtml"))
+	}
+	return newtpls
+}
+
 // Model's helper functions
 
 func parsebook(bk models.Book, req *http.Request) (models.Book, []models.FieldError) {

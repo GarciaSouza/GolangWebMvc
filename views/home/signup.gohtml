@@ -1,0 +1,27 @@
+{{define "content"}}
+<h1>SignUp</h1>
+
+<form action="/login" method="POST">
+
+<h4>Username</h4>
+<p><input name="username" type="text"/></p>
+
+<h4>First Name</h4>
+<p><input name="firstname" type="text"/></p>
+
+<h4>Last Name</h4>
+<p><input name="lastname" type="text"/></p>
+
+<h4>Email</h4>
+<p><input name="email" type="email"/></p>
+
+<h4>Password</h4>
+<p><input name="password" type="password"/></p>
+
+<h4>Re-type Password</h4>
+<p><input name="repassword" type="password"/></p>
+
+<button type="submit">SignUp</button>
+
+</form>
+{{end}}

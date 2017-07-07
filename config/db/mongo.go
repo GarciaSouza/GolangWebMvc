@@ -63,11 +63,15 @@ func Open() {
 		}
 	}
 
-	if err = Sessions.EnsureIndexKey("Key"); err != nil {
+	if err = Users.EnsureIndexKey("username"); err != nil {
 		panic(err)
 	}
 
-	if err = Sessions.EnsureIndexKey("UserID"); err != nil {
+	if err = Sessions.EnsureIndexKey("key"); err != nil {
+		panic(err)
+	}
+
+	if err = Sessions.EnsureIndexKey("userid"); err != nil {
 		panic(err)
 	}
 
