@@ -61,11 +61,38 @@ func PutUser(user User) (User, []FieldError) {
 	return user, fe
 }
 
+//UpdateUser Update a existing user
+func UpdateUser(user User) (User, []FieldError) {
+	var err error
+
+	fe := validateEditUser(user)
+	if len(fe) > 0 {
+		return user, fe
+	}
+
+	if user, err = updateUser(user); err != nil {
+		fe = append(fe, FieldError{Err: err, FieldName: ""})
+	}
+
+	return user, fe
+}
+
+//DeleteUser Delete a existing user
+func DeleteUser(user User) []FieldError {
+	fe := validateRemoveUser(user)
+
+	if err := deleteUser(user); err != nil {
+		fe = append(fe, FieldError{Err: err, FieldName: ""})
+	}
+
+	return fe
+}
+
 //LoginValidate Validate the login
 func LoginValidate(username string, password string) (*User, error) {
 	user, err := OneUserByUsername(username)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Invalid credentials")
 	}
 
 	secret := EncryptPass(password)
@@ -74,7 +101,7 @@ func LoginValidate(username string, password string) (*User, error) {
 		return user, nil
 	}
 
-	return nil, errors.New("Invalid user")
+	return nil, errors.New("Invalid credentials")
 }
 
 //EncryptPass Encrypt the password
@@ -89,34 +116,63 @@ func EncryptPass(password string) string {
 
 func getUserByID(id bson.ObjectId) (*User, error) {
 	var user *User
+
 	err := db.Users.Find(bson.M{"_id": id}).One(&user)
+
 	if err != nil {
-		return user, err
+		return nil, err
 	}
+
 	return user, nil
 }
 
 func getUserByUsername(username string) (*User, error) {
 	var user *User
+
 	err := db.Users.Find(bson.M{"username": username}).One(&user)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func createNewUser(user User) (User, error) {
+	err := db.Users.Insert(user)
+
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
+
+func updateUser(user User) (User, error) {
+	err := db.Users.Update(bson.M{"_id": user.ID}, &user)
 	if err != nil {
 		return user, err
 	}
 	return user, nil
 }
 
-func createNewUser(user User) (User, error) {
-	err := db.Users.Insert(user)
-	if err != nil {
-		return user, err
-	}
-	return user, nil
+func deleteUser(user User) error {
+	return db.Users.Remove(bson.M{"_id": user.ID})
 }
 
 // Validators
 
 func validateSaveUser(user User) []FieldError {
 	fe := []FieldError{}
-	//fe = append(fe, FieldError{FieldName: "Title", Err: errors.New("Choose a better Title")})
+	return fe
+}
+
+func validateEditUser(user User) []FieldError {
+	fe := []FieldError{}
+	return fe
+}
+
+func validateRemoveUser(user User) []FieldError {
+	fe := []FieldError{}
 	return fe
 }

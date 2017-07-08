@@ -35,11 +35,9 @@ func OneSessionByKey(key string) (*Session, error) {
 //PutSession Insert a new session
 func PutSession(session Session) (Session, []FieldError) {
 	var err error
-
-	session, err = createNewSession(session)
-
 	fe := []FieldError{}
-	if err != nil {
+
+	if session, err = createNewSession(session); err != nil {
 		fe = append(fe, FieldError{Err: err, FieldName: ""})
 	}
 
@@ -49,11 +47,9 @@ func PutSession(session Session) (Session, []FieldError) {
 //UpdateSession Update a existing session
 func UpdateSession(session Session) (Session, []FieldError) {
 	var err error
-
-	session, err = updateSession(session)
-
 	fe := []FieldError{}
-	if err != nil {
+
+	if session, err = updateSession(session); err != nil {
 		fe = append(fe, FieldError{Err: err, FieldName: ""})
 	}
 
@@ -74,27 +70,34 @@ func DeleteSession(session Session) []FieldError {
 // CRUD
 
 func getSessionByKey(key string) (*Session, error) {
-	var ss *Session
-	err := db.Sessions.Find(bson.M{"key": key}).One(&ss)
+	var session *Session
+
+	err := db.Sessions.Find(bson.M{"key": key}).One(&session)
+
 	if err != nil {
-		return ss, err
+		return nil, err
 	}
-	return ss, nil
+
+	return session, nil
 }
 
 func createNewSession(session Session) (Session, error) {
 	err := db.Sessions.Insert(session)
+
 	if err != nil {
 		return session, err
 	}
+
 	return session, nil
 }
 
 func updateSession(session Session) (Session, error) {
 	err := db.Sessions.Update(bson.M{"_id": session.ID}, &session)
+
 	if err != nil {
 		return session, err
 	}
+
 	return session, nil
 }
 

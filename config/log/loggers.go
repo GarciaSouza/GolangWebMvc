@@ -10,6 +10,9 @@ import (
 //Trace Trace logger
 var Trace *log.Logger
 
+//Debug Debug logger
+var Debug *log.Logger
+
 //Info Info logger
 var Info *log.Logger
 
@@ -20,18 +23,23 @@ var Warning *log.Logger
 var Error *log.Logger
 
 func init() {
-	InitLog(ioutil.Discard, os.Stdout, os.Stdout, os.Stderr)
+	InitLog(ioutil.Discard, os.Stdout, os.Stdout, os.Stdout, os.Stderr)
 }
 
 //InitLog Initialize the logger
 func InitLog(
 	traceHandle io.Writer,
+	debugHandle io.Writer,
 	infoHandle io.Writer,
 	warningHandle io.Writer,
 	errorHandle io.Writer) {
 
 	Trace = log.New(traceHandle,
 		"TRACE: ",
+		log.Ldate|log.Ltime|log.Lshortfile)
+
+	Debug = log.New(debugHandle,
+		"DEBUG: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
 	Info = log.New(infoHandle,
@@ -46,3 +54,16 @@ func InitLog(
 		"ERROR: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 }
+
+/*
+func Trace()    {}
+func Tracef()   {}
+func Debug()    {}
+func Debugf()   {}
+func Info()     {}
+func Infof()    {}
+func Warning()  {}
+func Warningf() {}
+func Error()    {}
+func Errorf()   {}
+*/

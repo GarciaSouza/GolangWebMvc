@@ -48,9 +48,7 @@ func PutBook(book Book) (Book, []FieldError) {
 		return book, fe
 	}
 
-	book, err = createNewBook(book)
-
-	if err != nil {
+	if book, err = createNewBook(book); err != nil {
 		fe = append(fe, FieldError{Err: err, FieldName: ""})
 	}
 
@@ -66,8 +64,7 @@ func UpdateBook(book Book) (Book, []FieldError) {
 		return book, fe
 	}
 
-	book, err = updateBook(book)
-	if err != nil {
+	if book, err = updateBook(book); err != nil {
 		fe = append(fe, FieldError{Err: err, FieldName: ""})
 	}
 
@@ -139,7 +136,6 @@ func deleteBook(book Book) error {
 
 func validateSaveBook(book Book) []FieldError {
 	fe := []FieldError{}
-	//fe = append(fe, FieldError{FieldName: "Title", Err: errors.New("Choose a better Title")})
 	return fe
 }
 
