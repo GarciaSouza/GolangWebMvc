@@ -2,7 +2,6 @@ package models
 
 import (
 	"crypto/hmac"
-	"crypto/sha256"
 	"errors"
 	"fmt"
 	"golang-webmvc/config"
@@ -23,11 +22,12 @@ type User struct {
 	Role      string        `bson:"role"`
 }
 
-//ErrorUserInvalidCredentials Invalid user credentials error
-var ErrorUserInvalidCredentials = errors.New("Invalid credentials")
-
-//ErrorUserPassRepass Password and Repassword are different
-var ErrorUserPassRepass = errors.New("Password and Repassword are different")
+var (
+	//ErrorUserInvalidCredentials Invalid user credentials error
+	ErrorUserInvalidCredentials = errors.New("Invalid credentials")
+	//ErrorUserPassRepass Password and Repassword are different
+	ErrorUserPassRepass = errors.New("Password and Repassword are different")
+)
 
 // Business
 
@@ -103,16 +103,16 @@ func LoginValidate(username string, password string) (*User, error) {
 
 	secret := EncryptPass(password)
 
-	if secret == user.Password {
-		return user, nil
+	if secret != user.Password {
+		return nil, ErrorUserInvalidCredentials
 	}
 
-	return nil, ErrorUserInvalidCredentials
+	return user, nil
 }
 
 //EncryptPass Encrypt the password
 func EncryptPass(password string) string {
-	h := hmac.New(sha256.New, []byte(config.ApplicationSecretKey))
+	h := hmac.New(config.ApplicationSecretHash, []byte(config.ApplicationSecretKey))
 	io.WriteString(h, password)
 	secret := fmt.Sprintf("%x", h.Sum(nil))
 	return secret
