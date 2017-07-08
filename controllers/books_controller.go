@@ -17,14 +17,7 @@ func BookIndex(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tpladdr := []string{
-		path.Join("views", "books", "index.gohtml"),
-	}
-
-	err = view(res, req, tpladdr, bks, nil)
-	if return500(res, err) {
-		return
-	}
+	view(res, req, tplbooks([]string{"index"}), bks, nil)
 }
 
 //BookShow GET /books/:id
@@ -47,59 +40,34 @@ func BookShow(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tpladdr := []string{
-		path.Join("views", "books", "show.gohtml"),
-	}
-
-	err = view(res, req, tpladdr, bk, nil)
-	if return500(res, err) {
-		return
-	}
+	view(res, req, tplbooks([]string{"show"}), bk, nil)
 }
 
 //BookNew GET /books/new
 func BookNew(res http.ResponseWriter, req *http.Request) {
-	tpladdr := []string{
-		path.Join("views", "books", "new.gohtml"),
-		path.Join("views", "books", "form.gohtml"),
-	}
-
-	err := view(res, req, tpladdr, models.NewBook(), nil)
-	if return500(res, err) {
-		return
-	}
+	view(res, req, tplbooks([]string{"new", "form"}), models.NewBook(), nil)
 }
 
 //BookCreate POST /books
 func BookCreate(res http.ResponseWriter, req *http.Request) {
 	var ferr []models.FieldError
-	var err error
+
 	bk := models.NewBook()
-	tpladdr := []string{
-		path.Join("views", "books", "new.gohtml"),
-		path.Join("views", "books", "form.gohtml"),
-	}
+	tpladdr := tplbooks([]string{"new", "form"})
 
 	if bk, ferr = parsebook(bk, req); ferr != nil && len(ferr) > 0 {
-		err = view(res, req, tpladdr, bk, ferr)
-		return500(res, err)
+		view(res, req, tpladdr, bk, ferr)
 		return
 	}
 
 	if bk, ferr = models.PutBook(bk); ferr != nil && len(ferr) > 0 {
-		err = view(res, req, tpladdr, bk, ferr)
-		return500(res, err)
+		view(res, req, tpladdr, bk, ferr)
 		return
 	}
 
-	tpladdr = []string{
-		path.Join("views", "books", "show.gohtml"),
-	}
+	tpladdr = tplbooks([]string{"show"})
 
-	err = view(res, req, tpladdr, bk, nil)
-	if return500(res, err) {
-		return
-	}
+	view(res, req, tpladdr, bk, nil)
 }
 
 //BookEdit GET /books/:id/edit
@@ -122,15 +90,7 @@ func BookEdit(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tpladdr := []string{
-		path.Join("views", "books", "edit.gohtml"),
-		path.Join("views", "books", "form.gohtml"),
-	}
-
-	err = view(res, req, tpladdr, bk, nil)
-	if return500(res, err) {
-		return
-	}
+	view(res, req, tplbooks([]string{"edit", "form"}), bk, nil)
 }
 
 //BookUpdate POST /books/:id
@@ -154,31 +114,21 @@ func BookUpdate(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tpladdr := []string{
-		path.Join("views", "books", "edit.gohtml"),
-		path.Join("views", "books", "form.gohtml"),
-	}
+	tpladdr := tplbooks([]string{"edit", "form"})
 
 	if newbk, ferr := parsebook(*bk, req); ferr != nil && len(ferr) > 0 {
-		err = view(res, req, tpladdr, newbk, ferr)
-		return500(res, err)
+		view(res, req, tpladdr, newbk, ferr)
 		return
 	}
 
 	if newbk, ferr := models.UpdateBook(*bk); ferr != nil && len(ferr) > 0 {
-		err = view(res, req, tpladdr, newbk, ferr)
-		return500(res, err)
+		view(res, req, tpladdr, newbk, ferr)
 		return
 	}
 
-	tpladdr = []string{
-		path.Join("views", "books", "show.gohtml"),
-	}
+	tpladdr = tplbooks([]string{"show"})
 
-	err = view(res, req, tpladdr, bk, nil)
-	if return500(res, err) {
-		return
-	}
+	view(res, req, tpladdr, bk, nil)
 }
 
 //BookDelete GET /books/:id/delete
@@ -201,14 +151,7 @@ func BookDelete(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tpladdr := []string{
-		path.Join("views", "books", "delete.gohtml"),
-	}
-
-	err = view(res, req, tpladdr, bk, nil)
-	if return500(res, err) {
-		return
-	}
+	view(res, req, tplbooks([]string{"delete"}), bk, nil)
 }
 
 //BookDeleteConfirm POST /books/:id/delete
@@ -238,8 +181,7 @@ func BookDeleteConfirm(res http.ResponseWriter, req *http.Request) {
 		tpladdr := []string{
 			path.Join("views", "books", "delete.gohtml"),
 		}
-		err = view(res, req, tpladdr, bk, ferr)
-		return500(res, err)
+		view(res, req, tpladdr, bk, ferr)
 		return
 	}
 
@@ -248,12 +190,5 @@ func BookDeleteConfirm(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tpladdr := []string{
-		path.Join("views", "books", "index.gohtml"),
-	}
-
-	err = view(res, req, tpladdr, bks, nil)
-	if return500(res, err) {
-		return
-	}
+	view(res, req, tplbooks([]string{"index"}), bks, nil)
 }

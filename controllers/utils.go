@@ -5,10 +5,10 @@ import (
 	"golang-webmvc/config"
 	"golang-webmvc/models"
 	"html/template"
-	"io"
 	"net/http"
 	"path"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -22,32 +22,36 @@ type ViewResult struct {
 
 // Controller's helper functions
 
-func view(res io.Writer, req *http.Request, tpladdr []string, data interface{}, errors []models.FieldError) error {
+func view(res http.ResponseWriter, req *http.Request, tpladdr []string, data interface{}, errors []models.FieldError) {
 	var tmpl *template.Template
 	var err error
 
 	if tmpl, err = template.New("").ParseGlob(path.Join("views", "*.gohtml")); err != nil {
-		return err
+		return500(res, err)
+		return
 	}
 
 	for _, tpl := range tpladdr {
 		if tmpl, err = tmpl.ParseFiles(tpl); err != nil {
-			return err
+			return500(res, err)
+			return
 		}
 	}
 
 	vr := getviewresult(req, data, errors)
 
 	if err = tmpl.ExecuteTemplate(res, "master", vr); err != nil {
-		return err
+		return500(res, err)
 	}
-
-	return nil
 }
 
 func return500(res http.ResponseWriter, err error) bool {
 	if err != nil {
-		http.Error(res, http.StatusText(500), http.StatusInternalServerError)
+		if strings.Contains("dev,test", config.Env) {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+		} else {
+			http.Error(res, http.StatusText(500), http.StatusInternalServerError)
+		}
 		return true
 	}
 

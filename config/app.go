@@ -5,6 +5,12 @@ import (
 	"hash"
 )
 
+//Env Environment
+var Env string
+
+//Port Port
+var Port string
+
 //ApplicationSecretKey The key used to generate the secret
 var ApplicationSecretKey string
 

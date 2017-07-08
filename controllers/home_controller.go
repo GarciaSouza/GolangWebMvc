@@ -9,14 +9,12 @@ import (
 
 //HomeIndex GET /
 func HomeIndex(res http.ResponseWriter, req *http.Request) {
-	err := view(res, req, tplhome([]string{"index"}), nil, nil)
-	return500(res, err)
+	view(res, req, tplhome([]string{"index"}), nil, nil)
 }
 
 //HomeLogin GET /login
 func HomeLogin(res http.ResponseWriter, req *http.Request) {
-	err := view(res, req, tplhome([]string{"login"}), nil, nil)
-	return500(res, err)
+	view(res, req, tplhome([]string{"login"}), nil, nil)
 }
 
 //HomeLoginSubmit POST /login
@@ -66,14 +64,12 @@ func HomeLogout(res http.ResponseWriter, req *http.Request) {
 		http.SetCookie(res, cookie)
 	}
 
-	err = view(res, req, tplhome([]string{"index"}), nil, nil)
-	return500(res, err)
+	view(res, req, tplhome([]string{"index"}), nil, nil)
 }
 
 //HomeSignup GET /signup
 func HomeSignup(res http.ResponseWriter, req *http.Request) {
-	err := view(res, req, tplhome([]string{"signup"}), models.NewUser(), nil)
-	return500(res, err)
+	view(res, req, tplhome([]string{"signup"}), models.NewUser(), nil)
 }
 
 //HomeSignupSubmit POST /signup
@@ -98,8 +94,7 @@ func HomeSignupSubmit(res http.ResponseWriter, req *http.Request) {
 		ferr := []models.FieldError{
 			models.FieldError{FieldName: "", Err: models.ErrorUserPassRepass},
 		}
-		err = view(res, req, tplhome([]string{"signup"}), user, ferr)
-		return500(res, err)
+		view(res, req, tplhome([]string{"signup"}), user, ferr)
 		return
 	}
 
@@ -107,8 +102,7 @@ func HomeSignupSubmit(res http.ResponseWriter, req *http.Request) {
 
 	user, ferr := models.PutUser(user)
 	if len(ferr) > 0 {
-		err = view(res, req, tplhome([]string{"signup"}), user, ferr)
-		return500(res, err)
+		view(res, req, tplhome([]string{"signup"}), user, ferr)
 		return
 	}
 
@@ -129,6 +123,5 @@ func dologin(res http.ResponseWriter, req *http.Request, user models.User) {
 		return
 	}
 
-	err = view(res, req, tplhome([]string{"index"}), nil, nil)
-	return500(res, err)
+	view(res, req, tplhome([]string{"index"}), nil, nil)
 }

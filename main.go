@@ -14,11 +14,12 @@ import (
 )
 
 func main() {
-	port := flag.String("port", "8182", "the port")
+	config.Port = *flag.String("port", "8182", "port")
+	config.Env = *flag.String("env", "dev", "environment")
 
 	flag.Parse()
 
-	log.Info("Running on", *port)
+	log.Info("Running on", config.Port)
 
 	// Serve the public directory statically
 	http.Handle("/public/", http.StripPrefix("/public", http.FileServer(http.Dir("./public"))))
@@ -30,7 +31,7 @@ func main() {
 	http.HandleFunc("/login", login)
 	http.HandleFunc("/signup", signup)
 
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":"+config.Port, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
