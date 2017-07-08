@@ -3,7 +3,6 @@ package controllers
 import (
 	"errors"
 	"golang-webmvc/config"
-	"golang-webmvc/config/log"
 	"golang-webmvc/models"
 	"html/template"
 	"io"
@@ -48,7 +47,6 @@ func view(res io.Writer, req *http.Request, tpladdr []string, data interface{}, 
 
 func return500(res http.ResponseWriter, err error) bool {
 	if err != nil {
-		log.Error.Println(err)
 		http.Error(res, http.StatusText(500), http.StatusInternalServerError)
 		return true
 	}
@@ -59,20 +57,18 @@ func return500(res http.ResponseWriter, err error) bool {
 func getsession(req *http.Request) *models.Session {
 	ssCookie, err := req.Cookie(config.SessionCookieName)
 	if err != nil {
-		log.Error.Println(err)
 		return nil
 	}
 
 	session, err := models.OneSessionByKey(ssCookie.Value)
 	if err != nil {
-		log.Error.Println(err)
 		return nil
 	}
 
 	if time.Now().Sub(session.LastActivity) > config.SessionTimeOut {
 		ferr := models.DeleteSession(*session)
 		if len(ferr) > 0 {
-			log.Error.Println(ferr)
+			//TODO: add log
 		}
 
 		return nil
@@ -82,7 +78,7 @@ func getsession(req *http.Request) *models.Session {
 
 	newsession, ferr := models.UpdateSession(*session)
 	if len(ferr) > 0 {
-		log.Error.Println(ferr)
+		//TODO: add log
 	} else {
 		session = &newsession
 	}
@@ -116,7 +112,6 @@ func getviewresult(req *http.Request, data interface{}, errors []models.FieldErr
 	if session != nil {
 		user, err := models.OneUserByID(session.UserID)
 		if err != nil {
-			log.Error.Println(err)
 			return vr
 		}
 

@@ -3,7 +3,6 @@ package controllers
 import (
 	"errors"
 	"golang-webmvc/config"
-	"golang-webmvc/config/log"
 	"golang-webmvc/models"
 	"net/http"
 	"time"
@@ -34,12 +33,10 @@ func HomeLoginSubmit(res http.ResponseWriter, req *http.Request) {
 	user, err := models.LoginValidate(username, password)
 
 	if err != nil {
-		log.Error.Println(err)
 		return500(res, err)
 	} else if user != nil {
 		dologin(res, req, *user)
 	} else {
-		log.Error.Println(err)
 		http.Error(res, http.StatusText(500), http.StatusInternalServerError)
 	}
 }

@@ -75,5 +75,5 @@ func Open() {
 		panic(err)
 	}
 
-	log.Info.Println("You connected to your mongo database")
+	log.Info("You connected to your mongo database")
 }

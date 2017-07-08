@@ -18,7 +18,7 @@ func main() {
 
 	flag.Parse()
 
-	log.Info.Println("Running on", *port)
+	log.Info("Running on", *port)
 
 	// Serve the public directory statically
 	http.Handle("/public/", http.StripPrefix("/public", http.FileServer(http.Dir("./public"))))
@@ -32,7 +32,7 @@ func main() {
 
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
-		log.Error.Fatalln(err)
+		log.Fatal(err)
 	}
 }
 
