@@ -23,6 +23,12 @@ type User struct {
 	Role      string        `bson:"role"`
 }
 
+//ErrorUserInvalidCredentials Invalid user credentials error
+var ErrorUserInvalidCredentials = errors.New("Invalid credentials")
+
+//ErrorUserPassRepass Password and Repassword are different
+var ErrorUserPassRepass = errors.New("Password and Repassword are different")
+
 // Business
 
 //NewUser Create a new user
@@ -92,7 +98,7 @@ func DeleteUser(user User) []FieldError {
 func LoginValidate(username string, password string) (*User, error) {
 	user, err := OneUserByUsername(username)
 	if err != nil {
-		return nil, errors.New("Invalid credentials")
+		return nil, ErrorUserInvalidCredentials
 	}
 
 	secret := EncryptPass(password)
@@ -101,7 +107,7 @@ func LoginValidate(username string, password string) (*User, error) {
 		return user, nil
 	}
 
-	return nil, errors.New("Invalid credentials")
+	return nil, ErrorUserInvalidCredentials
 }
 
 //EncryptPass Encrypt the password

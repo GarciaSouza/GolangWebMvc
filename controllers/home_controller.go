@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"golang-webmvc/config"
 	"golang-webmvc/models"
 	"net/http"
@@ -97,7 +96,7 @@ func HomeSignupSubmit(res http.ResponseWriter, req *http.Request) {
 
 	if pass != repass {
 		ferr := []models.FieldError{
-			models.FieldError{FieldName: "", Err: errors.New("Password and Repassword differ")},
+			models.FieldError{FieldName: "", Err: models.ErrorUserPassRepass},
 		}
 		err = view(res, req, tplhome([]string{"signup"}), user, ferr)
 		return500(res, err)

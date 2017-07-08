@@ -61,7 +61,6 @@ func BookShow(res http.ResponseWriter, req *http.Request) {
 func BookNew(res http.ResponseWriter, req *http.Request) {
 	tpladdr := []string{
 		path.Join("views", "books", "new.gohtml"),
-		path.Join("views", "books", "errors.gohtml"),
 		path.Join("views", "books", "form.gohtml"),
 	}
 
@@ -78,7 +77,6 @@ func BookCreate(res http.ResponseWriter, req *http.Request) {
 	bk := models.NewBook()
 	tpladdr := []string{
 		path.Join("views", "books", "new.gohtml"),
-		path.Join("views", "books", "errors.gohtml"),
 		path.Join("views", "books", "form.gohtml"),
 	}
 
@@ -126,7 +124,6 @@ func BookEdit(res http.ResponseWriter, req *http.Request) {
 
 	tpladdr := []string{
 		path.Join("views", "books", "edit.gohtml"),
-		path.Join("views", "books", "errors.gohtml"),
 		path.Join("views", "books", "form.gohtml"),
 	}
 
@@ -159,7 +156,6 @@ func BookUpdate(res http.ResponseWriter, req *http.Request) {
 
 	tpladdr := []string{
 		path.Join("views", "books", "edit.gohtml"),
-		path.Join("views", "books", "errors.gohtml"),
 		path.Join("views", "books", "form.gohtml"),
 	}
 
@@ -207,7 +203,6 @@ func BookDelete(res http.ResponseWriter, req *http.Request) {
 
 	tpladdr := []string{
 		path.Join("views", "books", "delete.gohtml"),
-		path.Join("views", "books", "errors.gohtml"),
 	}
 
 	err = view(res, req, tpladdr, bk, nil)
@@ -242,7 +237,6 @@ func BookDeleteConfirm(res http.ResponseWriter, req *http.Request) {
 	if ferr = models.DeleteBook(*bk); ferr != nil && len(ferr) > 0 {
 		tpladdr := []string{
 			path.Join("views", "books", "delete.gohtml"),
-			path.Join("views", "books", "errors.gohtml"),
 		}
 		err = view(res, req, tpladdr, bk, ferr)
 		return500(res, err)
