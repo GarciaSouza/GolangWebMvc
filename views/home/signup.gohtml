@@ -1,19 +1,23 @@
 {{define "content"}}
 <h1>SignUp</h1>
 
-<form action="/login" method="POST">
+<form action="/signup" method="POST">
+
+{{if gt (.Errors | len) 0}}
+{{.Errors}}
+{{end}}
 
 <h4>Username</h4>
-<p><input name="username" type="text"/></p>
+<p><input name="username" value="{{.Data.Username}}" type="text"/></p>
 
 <h4>First Name</h4>
-<p><input name="firstname" type="text"/></p>
+<p><input name="firstname" value="{{.Data.Firstname}}" type="text"/></p>
 
 <h4>Last Name</h4>
-<p><input name="lastname" type="text"/></p>
+<p><input name="lastname" value="{{.Data.Lastname}}" type="text"/></p>
 
 <h4>Email</h4>
-<p><input name="email" type="email"/></p>
+<p><input name="email" value="{{.Data.Email}}" type="email"/></p>
 
 <h4>Password</h4>
 <p><input name="password" type="password"/></p>
