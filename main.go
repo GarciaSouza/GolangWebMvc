@@ -2,8 +2,10 @@ package main
 
 import (
 	"golang-webmvc/config"
+	"golang-webmvc/config/db"
 	"golang-webmvc/config/log"
 	"golang-webmvc/controllers"
+	"golang-webmvc/models"
 
 	"flag"
 	"net/http"
@@ -18,8 +20,18 @@ func main() {
 	config.Env = *flag.String("env", "dev", "environment")
 
 	flag.Parse()
+	tail := flag.Args()
 
-	log.Info("Running on", config.Port)
+	if len(tail) > 0 {
+		if len(tail) == 1 && tail[0] == "initdb" {
+			initdb()
+			return
+		}
+
+		log.Error.Fatalln("Invalid Arguments")
+	}
+
+	log.Info.Println("Running On", config.Port)
 
 	// Serve the public directory statically
 	http.Handle("/public/", http.StripPrefix("/public", http.FileServer(http.Dir("./public"))))
@@ -33,8 +45,97 @@ func main() {
 
 	err := http.ListenAndServe(":"+config.Port, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Error.Fatalln(err)
 	}
+}
+
+func initdb() {
+	var err error
+
+	log.Info.Println("InitDB - Start")
+
+	_, err = db.Users.RemoveAll(bson.M{})
+	if err != nil {
+		log.Error.Fatalln(err)
+	}
+
+	_, err = db.Books.RemoveAll(bson.M{})
+	if err != nil {
+		log.Error.Fatalln(err)
+	}
+
+	_, err = db.Sessions.RemoveAll(bson.M{})
+	if err != nil {
+		log.Error.Fatalln(err)
+	}
+
+	admin := models.User{
+		ID:        bson.NewObjectId(),
+		Username:  "admin",
+		Firstname: "admin",
+		Lastname:  "",
+		Email:     "admin@localhost",
+		Role:      "Admin",
+		Password:  models.EncryptPass("admin#123"),
+	}
+
+	err = db.Users.Insert(admin)
+	if err != nil {
+		log.Error.Fatalln(err)
+	}
+
+	book1 := models.Book{
+		ID:     bson.NewObjectId(),
+		Isbn:   "8575420275",
+		Title:  "O Poder do Agora",
+		Author: "Tolle, Eckhart",
+		Price:  20.30,
+	}
+
+	book2 := models.Book{
+		ID:     bson.NewObjectId(),
+		Isbn:   "9788539004119",
+		Title:  "O Poder do Hábito - Por Que Fazemos o Que Fazemos na Vida e Nos Negócios",
+		Author: "Duhigg, Charles",
+		Price:  37,
+	}
+
+	book3 := models.Book{
+		ID:     bson.NewObjectId(),
+		Isbn:   "8575422391",
+		Title:  "Os Segredos da Mente Milionária - Aprenda a Enriquecer Mudando seus Conceitos Sobre o Dinheiro",
+		Author: "Eker, T. Harv",
+		Price:  19.10,
+	}
+
+	book4 := models.Book{
+		ID:     bson.NewObjectId(),
+		Isbn:   "9788535206234",
+		Title:  "Pai Rico Pai Pobre",
+		Author: "Kiyosaki, Robert T. / Kiyosaki, Robert T.",
+		Price:  48.90,
+	}
+
+	err = db.Books.Insert(book1)
+	if err != nil {
+		log.Error.Fatalln(err)
+	}
+
+	err = db.Books.Insert(book2)
+	if err != nil {
+		log.Error.Fatalln(err)
+	}
+	err = db.Books.Insert(book3)
+	if err != nil {
+		log.Error.Fatalln(err)
+	}
+
+	err = db.Books.Insert(book4)
+	if err != nil {
+		log.Error.Fatalln(err)
+	}
+
+	log.Info.Println("InitDB - Done")
 }
 
 func books(res http.ResponseWriter, req *http.Request) {

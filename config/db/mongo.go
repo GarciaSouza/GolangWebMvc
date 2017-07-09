@@ -1,13 +1,22 @@
 package db
 
 import (
+	"fmt"
 	"golang-webmvc/config/log"
 	"strings"
 
 	"gopkg.in/mgo.v2"
 )
 
+var session *mgo.Session
+
 var db *mgo.Database
+
+//Host The host
+var Host string
+
+//DbName The name of the MongoDB database
+var DbName string
 
 //Books Books MongoDB Collection
 var Books *mgo.Collection
@@ -18,62 +27,60 @@ var Users *mgo.Collection
 //Sessions Sessions MongoDB Collection
 var Sessions *mgo.Collection
 
-func init() {
-	Open()
-}
-
 //Open Try to stablish connection with MongoDB
 func Open() {
-	s, err := mgo.Dial("mongodb://localhost/bookstore")
+	var err error
+
+	session, err = mgo.Dial(fmt.Sprintf("mongodb://%s/%s", Host, DbName))
 	if err != nil {
-		panic(err)
+		log.Error.Fatalln(err)
 	}
 
-	if err = s.Ping(); err != nil {
-		panic(err)
+	if err = session.Ping(); err != nil {
+		log.Error.Fatalln(err)
 	}
 
-	db = s.DB("bookstore")
+	db = session.DB(DbName)
 	Books = db.C("books")
 	Users = db.C("users")
 	Sessions = db.C("sessions")
 
 	cols, err := db.CollectionNames()
 	if err != nil {
-		panic(err)
+		log.Error.Fatalln(err)
 	}
 
 	colsj := strings.Join(cols, ",")
 
 	if !strings.Contains(colsj, "books") {
 		if err = Books.Create(&mgo.CollectionInfo{}); err != nil {
-			panic(err)
+			log.Error.Fatalln(err)
 		}
 	}
 
 	if !strings.Contains(colsj, "users") {
 		if err = Users.Create(&mgo.CollectionInfo{}); err != nil {
-			panic(err)
+			log.Error.Fatalln(err)
 		}
 	}
 
 	if !strings.Contains(colsj, "sessions") {
 		if err = Sessions.Create(&mgo.CollectionInfo{}); err != nil {
-			panic(err)
+			log.Error.Fatalln(err)
 		}
 	}
 
 	if err = Users.EnsureIndexKey("username"); err != nil {
-		panic(err)
+		log.Error.Fatalln(err)
 	}
 
 	if err = Sessions.EnsureIndexKey("key"); err != nil {
-		panic(err)
+		log.Error.Fatalln(err)
 	}
 
 	if err = Sessions.EnsureIndexKey("userid"); err != nil {
-		panic(err)
+		log.Error.Fatalln(err)
 	}
 
-	log.Info("You connected to your mongo database")
+	log.Info.Println("Connected to MongoDB")
 }
