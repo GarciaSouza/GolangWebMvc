@@ -58,6 +58,32 @@ func return500(res http.ResponseWriter, err error) bool {
 	return false
 }
 
+func return401(res http.ResponseWriter) {
+	http.Error(res, http.StatusText(401), http.StatusUnauthorized)
+}
+
+func isUserAuthorized(res http.ResponseWriter, req *http.Request, roles []string) bool {
+	session := getsession(req)
+	if session == nil {
+		return401(res)
+		return false
+	}
+
+	user, err := models.OneUserByID(session.UserID)
+	if err != nil {
+		return401(res)
+		return false
+	}
+
+	ar := strings.Join(roles, ",")
+	if !strings.Contains(ar, user.Role) {
+		return401(res)
+		return false
+	}
+
+	return true
+}
+
 func getsession(req *http.Request) *models.Session {
 	ssCookie, err := req.Cookie(config.SessionCookieName)
 	if err != nil {

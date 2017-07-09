@@ -45,6 +45,10 @@ func BookShow(res http.ResponseWriter, req *http.Request) {
 
 //BookNew GET /books/new
 func BookNew(res http.ResponseWriter, req *http.Request) {
+	if !isUserAuthorized(res, req, []string{"Admin"}) {
+		return
+	}
+
 	view(res, req, tplbooks([]string{"new", "form"}), models.NewBook(), nil)
 }
 
