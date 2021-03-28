@@ -4,6 +4,9 @@ import (
 	"errors"
 	"finance/config"
 	"finance/models"
+	modelBook "finance/models/book"
+	modelSession "finance/models/session"
+	modelUser "finance/models/user"
 	"html/template"
 	"net/http"
 	"path"
@@ -16,8 +19,8 @@ import (
 type ViewResult struct {
 	Data    interface{}
 	Errors  map[string][]error
-	Session *models.Session
-	User    *models.User
+	Session *modelSession.Session
+	User    *modelUser.User
 }
 
 // Controller's helper functions
@@ -69,7 +72,7 @@ func isUserAuthorized(res http.ResponseWriter, req *http.Request, roles []string
 		return false
 	}
 
-	user, err := models.OneUserByID(session.UserID)
+	user, err := modelUser.OneUserByID(session.UserID)
 	if err != nil {
 		return401(res)
 		return false
@@ -84,19 +87,19 @@ func isUserAuthorized(res http.ResponseWriter, req *http.Request, roles []string
 	return true
 }
 
-func getsession(req *http.Request) *models.Session {
+func getsession(req *http.Request) *modelSession.Session {
 	ssCookie, err := req.Cookie(config.SessionCookieName)
 	if err != nil {
 		return nil
 	}
 
-	session, err := models.OneSessionByKey(ssCookie.Value)
+	session, err := modelSession.OneSessionByKey(ssCookie.Value)
 	if err != nil {
 		return nil
 	}
 
 	if time.Now().Sub(session.LastActivity) > config.SessionTimeOut {
-		ferr := models.DeleteSession(*session)
+		ferr := modelSession.DeleteSession(*session)
 		if len(ferr) > 0 {
 			//TODO: add log
 		}
@@ -106,7 +109,7 @@ func getsession(req *http.Request) *models.Session {
 
 	session.LastActivity = time.Now()
 
-	newsession, ferr := models.UpdateSession(*session)
+	newsession, ferr := modelSession.UpdateSession(*session)
 	if len(ferr) > 0 {
 		//TODO: add log
 	} else {
@@ -140,7 +143,7 @@ func getviewresult(req *http.Request, data interface{}, errors []models.FieldErr
 	session := getsession(req)
 
 	if session != nil {
-		user, err := models.OneUserByID(session.UserID)
+		user, err := modelUser.OneUserByID(session.UserID)
 		if err != nil {
 			return vr
 		}
@@ -170,7 +173,7 @@ func tplbooks(tpls []string) []string {
 
 // Model's helper functions
 
-func parsebook(bk models.Book, req *http.Request) (models.Book, []models.FieldError) {
+func parsebook(bk modelBook.Book, req *http.Request) (modelBook.Book, []models.FieldError) {
 	ferr := []models.FieldError{}
 
 	req.ParseForm()

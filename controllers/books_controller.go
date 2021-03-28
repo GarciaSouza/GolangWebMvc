@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"finance/models"
+	modelBook "finance/models/book"
 	"net/http"
 	"path"
 	"strings"
@@ -11,7 +12,7 @@ import (
 
 //BookIndex GET /books
 func BookIndex(res http.ResponseWriter, req *http.Request) {
-	bks, err := models.AllBooks()
+	bks, err := modelBook.AllBooks()
 
 	if return500(res, err) {
 		return
@@ -35,7 +36,7 @@ func BookShow(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	bk, err := models.OneBookByID(bson.ObjectIdHex(id))
+	bk, err := modelBook.OneBookByID(bson.ObjectIdHex(id))
 	if return500(res, err) {
 		return
 	}
@@ -49,14 +50,14 @@ func BookNew(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	view(res, req, tplbooks([]string{"new", "form"}), models.NewBook(), nil)
+	view(res, req, tplbooks([]string{"new", "form"}), modelBook.NewBook(), nil)
 }
 
 //BookCreate POST /books
 func BookCreate(res http.ResponseWriter, req *http.Request) {
 	var ferr []models.FieldError
 
-	bk := models.NewBook()
+	bk := modelBook.NewBook()
 	tpladdr := tplbooks([]string{"new", "form"})
 
 	if bk, ferr = parsebook(bk, req); ferr != nil && len(ferr) > 0 {
@@ -64,7 +65,7 @@ func BookCreate(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if bk, ferr = models.PutBook(bk); ferr != nil && len(ferr) > 0 {
+	if bk, ferr = modelBook.PutBook(bk); ferr != nil && len(ferr) > 0 {
 		view(res, req, tpladdr, bk, ferr)
 		return
 	}
@@ -89,7 +90,7 @@ func BookEdit(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	bk, err := models.OneBookByID(bson.ObjectIdHex(id))
+	bk, err := modelBook.OneBookByID(bson.ObjectIdHex(id))
 	if return500(res, err) {
 		return
 	}
@@ -112,7 +113,7 @@ func BookUpdate(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	bk, err := models.OneBookByID(bson.ObjectIdHex(id))
+	bk, err := modelBook.OneBookByID(bson.ObjectIdHex(id))
 	if err != nil {
 		http.Error(res, http.StatusText(500), http.StatusInternalServerError)
 		return
@@ -125,7 +126,7 @@ func BookUpdate(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if newbk, ferr := models.UpdateBook(*bk); ferr != nil && len(ferr) > 0 {
+	if newbk, ferr := modelBook.UpdateBook(*bk); ferr != nil && len(ferr) > 0 {
 		view(res, req, tpladdr, newbk, ferr)
 		return
 	}
@@ -150,7 +151,7 @@ func BookDelete(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	bk, err := models.OneBookByID(bson.ObjectIdHex(id))
+	bk, err := modelBook.OneBookByID(bson.ObjectIdHex(id))
 	if return500(res, err) {
 		return
 	}
@@ -173,7 +174,7 @@ func BookDeleteConfirm(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	bk, err := models.OneBookByID(bson.ObjectIdHex(id))
+	bk, err := modelBook.OneBookByID(bson.ObjectIdHex(id))
 	if err != nil {
 		http.Error(res, http.StatusText(500), http.StatusInternalServerError)
 		return
@@ -181,7 +182,7 @@ func BookDeleteConfirm(res http.ResponseWriter, req *http.Request) {
 
 	var ferr []models.FieldError
 
-	if ferr = models.DeleteBook(*bk); ferr != nil && len(ferr) > 0 {
+	if ferr = modelBook.DeleteBook(*bk); ferr != nil && len(ferr) > 0 {
 		tpladdr := []string{
 			path.Join("views", "books", "delete.gohtml"),
 		}
@@ -189,7 +190,7 @@ func BookDeleteConfirm(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	bks, err := models.AllBooks()
+	bks, err := modelBook.AllBooks()
 	if return500(res, err) {
 		return
 	}

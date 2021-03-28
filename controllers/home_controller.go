@@ -3,6 +3,8 @@ package controllers
 import (
 	"finance/config"
 	"finance/models"
+	modelSession "finance/models/session"
+	modelUser "finance/models/user"
 	"net/http"
 	"time"
 )
@@ -27,7 +29,7 @@ func HomeLoginSubmit(res http.ResponseWriter, req *http.Request) {
 	username := req.FormValue("username")
 	password := req.FormValue("password")
 
-	user, err := models.LoginValidate(username, password)
+	user, err := modelUser.LoginValidate(username, password)
 
 	if err != nil {
 		return500(res, err)
@@ -45,9 +47,9 @@ func HomeLogout(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	session, err := models.OneSessionByKey(ssCookie.Value)
+	session, err := modelSession.OneSessionByKey(ssCookie.Value)
 	if session != nil {
-		ferr := models.DeleteSession(*session)
+		ferr := modelSession.DeleteSession(*session)
 		if len(ferr) > 0 {
 			return500(res, ferr[0].Err)
 			return
@@ -69,7 +71,7 @@ func HomeLogout(res http.ResponseWriter, req *http.Request) {
 
 //HomeSignup GET /signup
 func HomeSignup(res http.ResponseWriter, req *http.Request) {
-	view(res, req, tplhome([]string{"signup"}), models.NewUser(), nil)
+	view(res, req, tplhome([]string{"signup"}), modelUser.NewUser(), nil)
 }
 
 //HomeSignupSubmit POST /signup
@@ -82,7 +84,7 @@ func HomeSignupSubmit(res http.ResponseWriter, req *http.Request) {
 	pass := req.FormValue("password")
 	repass := req.FormValue("repassword")
 
-	user := models.NewUser()
+	user := modelUser.NewUser()
 
 	user.Username = req.FormValue("username")
 	user.Firstname = req.FormValue("firstname")
@@ -92,15 +94,15 @@ func HomeSignupSubmit(res http.ResponseWriter, req *http.Request) {
 
 	if pass != repass {
 		ferr := []models.FieldError{
-			models.FieldError{FieldName: "", Err: models.ErrorUserPassRepass},
+			{FieldName: "", Err: modelUser.ErrorUserPassRepass},
 		}
 		view(res, req, tplhome([]string{"signup"}), user, ferr)
 		return
 	}
 
-	user.Password = models.EncryptPass(req.FormValue("password"))
+	user.Password = modelUser.EncryptPass(req.FormValue("password"))
 
-	user, ferr := models.PutUser(user)
+	user, ferr := modelUser.PutUser(user)
 	if len(ferr) > 0 {
 		view(res, req, tplhome([]string{"signup"}), user, ferr)
 		return
@@ -109,15 +111,15 @@ func HomeSignupSubmit(res http.ResponseWriter, req *http.Request) {
 	dologin(res, req, user)
 }
 
-func dologin(res http.ResponseWriter, req *http.Request, user models.User) {
+func dologin(res http.ResponseWriter, req *http.Request, user modelUser.User) {
 
 	ssCookie, err := req.Cookie(config.SessionCookieName)
 	if return500(res, err) {
 		return
 	}
 
-	newsession := models.NewSession(ssCookie.Value, user.ID)
-	_, ferr := models.PutSession(newsession)
+	newsession := modelSession.NewSession(ssCookie.Value, user.ID)
+	_, ferr := modelSession.PutSession(newsession)
 	if len(ferr) > 0 {
 		return500(res, ferr[0].Err)
 		return

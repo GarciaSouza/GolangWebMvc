@@ -5,7 +5,8 @@ import (
 	"finance/config/db"
 	"finance/config/log"
 	"finance/controllers"
-	"finance/models"
+	modelBook "finance/models/book"
+	modelUser "finance/models/user"
 
 	"flag"
 	"net/http"
@@ -69,14 +70,14 @@ func initdb() {
 		log.Error.Fatalln(err)
 	}
 
-	admin := models.User{
+	admin := modelUser.User{
 		ID:        bson.NewObjectId(),
 		Username:  "admin",
 		Firstname: "admin",
 		Lastname:  "",
 		Email:     "admin@localhost",
 		Role:      "Admin",
-		Password:  models.EncryptPass("admin#123"),
+		Password:  modelUser.EncryptPass("admin#123"),
 	}
 
 	err = db.Users.Insert(admin)
@@ -84,7 +85,7 @@ func initdb() {
 		log.Error.Fatalln(err)
 	}
 
-	book1 := models.Book{
+	book1 := modelBook.Book{
 		ID:     bson.NewObjectId(),
 		Isbn:   "8575420275",
 		Title:  "O Poder do Agora",
@@ -92,7 +93,7 @@ func initdb() {
 		Price:  20.30,
 	}
 
-	book2 := models.Book{
+	book2 := modelBook.Book{
 		ID:     bson.NewObjectId(),
 		Isbn:   "9788539004119",
 		Title:  "O Poder do Hábito - Por Que Fazemos o Que Fazemos na Vida e Nos Negócios",
@@ -100,7 +101,7 @@ func initdb() {
 		Price:  37,
 	}
 
-	book3 := models.Book{
+	book3 := modelBook.Book{
 		ID:     bson.NewObjectId(),
 		Isbn:   "8575422391",
 		Title:  "Os Segredos da Mente Milionária - Aprenda a Enriquecer Mudando seus Conceitos Sobre o Dinheiro",
@@ -108,7 +109,7 @@ func initdb() {
 		Price:  19.10,
 	}
 
-	book4 := models.Book{
+	book4 := modelBook.Book{
 		ID:     bson.NewObjectId(),
 		Isbn:   "9788535206234",
 		Title:  "Pai Rico Pai Pobre",
