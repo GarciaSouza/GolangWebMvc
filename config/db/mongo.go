@@ -1,8 +1,8 @@
 package db
 
 import (
+	"finance/config/log"
 	"fmt"
-	"golang-webmvc/config/log"
 	"strings"
 
 	"gopkg.in/mgo.v2"

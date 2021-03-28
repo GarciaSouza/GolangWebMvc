@@ -3,9 +3,9 @@ package models
 import (
 	"crypto/hmac"
 	"errors"
+	"finance/config"
+	"finance/config/db"
 	"fmt"
-	"golang-webmvc/config"
-	"golang-webmvc/config/db"
 	"io"
 
 	"gopkg.in/mgo.v2/bson"

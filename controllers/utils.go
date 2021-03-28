@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"errors"
-	"golang-webmvc/config"
-	"golang-webmvc/models"
+	"finance/config"
+	"finance/models"
 	"html/template"
 	"net/http"
 	"path"

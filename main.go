@@ -1,17 +1,17 @@
 package main
 
 import (
-	"golang-webmvc/config"
-	"golang-webmvc/config/db"
-	"golang-webmvc/config/log"
-	"golang-webmvc/controllers"
-	"golang-webmvc/models"
+	"finance/config"
+	"finance/config/db"
+	"finance/config/log"
+	"finance/controllers"
+	"finance/models"
 
 	"flag"
 	"net/http"
 	"strings"
 
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2/bson"
 )
 

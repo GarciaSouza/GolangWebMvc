@@ -2,8 +2,8 @@ package config
 
 import (
 	"crypto/sha256"
-	"golang-webmvc/config/db"
-	applog "golang-webmvc/config/log"
+	"finance/config/db"
+	applog "finance/config/log"
 	"hash"
 	"io/ioutil"
 	"log"

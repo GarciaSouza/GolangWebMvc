@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"golang-webmvc/models"
+	"finance/models"
 	"net/http"
 	"path"
 	"strings"

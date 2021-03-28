@@ -1,7 +1,7 @@
 package models
 
 import (
-	"golang-webmvc/config/db"
+	"finance/config/db"
 	"time"
 
 	"gopkg.in/mgo.v2/bson"
