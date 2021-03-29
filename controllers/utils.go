@@ -23,32 +23,32 @@ type ViewResult struct {
 	User    *modelUser.User
 }
 
-// Controller's helper functions
-
-func view(res http.ResponseWriter, req *http.Request, tpladdr []string, data interface{}, errors []models.FieldError) {
+//View View
+func View(res http.ResponseWriter, req *http.Request, tpladdr []string, data interface{}, errors []models.FieldError) {
 	var tmpl *template.Template
 	var err error
 
 	if tmpl, err = template.New("").ParseGlob(path.Join("views", "*.gohtml")); err != nil {
-		return500(res, err)
+		Return500(res, err)
 		return
 	}
 
 	for _, tpl := range tpladdr {
 		if tmpl, err = tmpl.ParseFiles(tpl); err != nil {
-			return500(res, err)
+			Return500(res, err)
 			return
 		}
 	}
 
-	vr := getviewresult(req, data, errors)
+	vr := GetViewResult(req, data, errors)
 
 	if err = tmpl.ExecuteTemplate(res, "master", vr); err != nil {
-		return500(res, err)
+		Return500(res, err)
 	}
 }
 
-func return500(res http.ResponseWriter, err error) bool {
+//Return500 Return HTTP 500
+func Return500(res http.ResponseWriter, err error) bool {
 	if err != nil {
 		if strings.Contains("dev,test", config.Env) {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -61,33 +61,36 @@ func return500(res http.ResponseWriter, err error) bool {
 	return false
 }
 
-func return401(res http.ResponseWriter) {
+//Return401 Return401
+func Return401(res http.ResponseWriter) {
 	http.Error(res, http.StatusText(401), http.StatusUnauthorized)
 }
 
-func isUserAuthorized(res http.ResponseWriter, req *http.Request, roles []string) bool {
-	session := getsession(req)
+//IsUserAuthorized IsUserAuthorized
+func IsUserAuthorized(res http.ResponseWriter, req *http.Request, roles []string) bool {
+	session := GetSession(req)
 	if session == nil {
-		return401(res)
+		Return401(res)
 		return false
 	}
 
 	user, err := modelUser.OneUserByID(session.UserID)
 	if err != nil {
-		return401(res)
+		Return401(res)
 		return false
 	}
 
 	ar := strings.Join(roles, ",")
 	if !strings.Contains(ar, user.Role) {
-		return401(res)
+		Return401(res)
 		return false
 	}
 
 	return true
 }
 
-func getsession(req *http.Request) *modelSession.Session {
+//GetSession GetSession
+func GetSession(req *http.Request) *modelSession.Session {
 	ssCookie, err := req.Cookie(config.SessionCookieName)
 	if err != nil {
 		return nil
@@ -119,7 +122,8 @@ func getsession(req *http.Request) *modelSession.Session {
 	return session
 }
 
-func getviewresult(req *http.Request, data interface{}, errors []models.FieldError) ViewResult {
+//GetViewResult GetViewResult
+func GetViewResult(req *http.Request, data interface{}, errors []models.FieldError) ViewResult {
 	vr := ViewResult{
 		Data:    nil,
 		Errors:  make(map[string][]error),
@@ -140,7 +144,7 @@ func getviewresult(req *http.Request, data interface{}, errors []models.FieldErr
 		}
 	}
 
-	session := getsession(req)
+	session := GetSession(req)
 
 	if session != nil {
 		user, err := modelUser.OneUserByID(session.UserID)
@@ -155,7 +159,8 @@ func getviewresult(req *http.Request, data interface{}, errors []models.FieldErr
 	return vr
 }
 
-func tplhome(tpls []string) []string {
+//TplHome TplHome
+func TplHome(tpls []string) []string {
 	newtpls := []string{}
 	for _, tpl := range tpls {
 		newtpls = append(newtpls, path.Join("views", "home", tpl+".gohtml"))
@@ -163,7 +168,8 @@ func tplhome(tpls []string) []string {
 	return newtpls
 }
 
-func tplbooks(tpls []string) []string {
+//TplBooks TplBooks
+func TplBooks(tpls []string) []string {
 	newtpls := []string{}
 	for _, tpl := range tpls {
 		newtpls = append(newtpls, path.Join("views", "books", tpl+".gohtml"))
@@ -171,9 +177,8 @@ func tplbooks(tpls []string) []string {
 	return newtpls
 }
 
-// Model's helper functions
-
-func parsebook(bk modelBook.Book, req *http.Request) (modelBook.Book, []models.FieldError) {
+//ParseBook ParseBook
+func ParseBook(bk modelBook.Book, req *http.Request) (modelBook.Book, []models.FieldError) {
 	ferr := []models.FieldError{}
 
 	req.ParseForm()

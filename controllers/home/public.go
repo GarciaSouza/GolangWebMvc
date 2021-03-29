@@ -1,7 +1,8 @@
-package controllers
+package home
 
 import (
 	"finance/config"
+	"finance/controllers"
 	"finance/models"
 	modelSession "finance/models/session"
 	modelUser "finance/models/user"
@@ -11,18 +12,18 @@ import (
 
 //HomeIndex GET /
 func HomeIndex(res http.ResponseWriter, req *http.Request) {
-	view(res, req, tplhome([]string{"index"}), nil, nil)
+	controllers.View(res, req, controllers.TplHome([]string{"index"}), nil, nil)
 }
 
 //HomeLogin GET /login
 func HomeLogin(res http.ResponseWriter, req *http.Request) {
-	view(res, req, tplhome([]string{"login"}), nil, nil)
+	controllers.View(res, req, controllers.TplHome([]string{"login"}), nil, nil)
 }
 
 //HomeLoginSubmit POST /login
 func HomeLoginSubmit(res http.ResponseWriter, req *http.Request) {
 	err := req.ParseForm()
-	if return500(res, err) {
+	if controllers.Return500(res, err) {
 		return
 	}
 
@@ -32,7 +33,7 @@ func HomeLoginSubmit(res http.ResponseWriter, req *http.Request) {
 	user, err := modelUser.LoginValidate(username, password)
 
 	if err != nil {
-		return500(res, err)
+		controllers.Return500(res, err)
 	} else if user != nil {
 		dologin(res, req, *user)
 	} else {
@@ -43,7 +44,7 @@ func HomeLoginSubmit(res http.ResponseWriter, req *http.Request) {
 //HomeLogout GET /logout
 func HomeLogout(res http.ResponseWriter, req *http.Request) {
 	ssCookie, err := req.Cookie(config.SessionCookieName)
-	if return500(res, err) {
+	if controllers.Return500(res, err) {
 		return
 	}
 
@@ -51,12 +52,12 @@ func HomeLogout(res http.ResponseWriter, req *http.Request) {
 	if session != nil {
 		ferr := modelSession.DeleteSession(*session)
 		if len(ferr) > 0 {
-			return500(res, ferr[0].Err)
+			controllers.Return500(res, ferr[0].Err)
 			return
 		}
 
 		cookie, err := req.Cookie(config.SessionCookieName)
-		if return500(res, err) {
+		if controllers.Return500(res, err) {
 			return
 		}
 
@@ -66,18 +67,18 @@ func HomeLogout(res http.ResponseWriter, req *http.Request) {
 		http.SetCookie(res, cookie)
 	}
 
-	view(res, req, tplhome([]string{"index"}), nil, nil)
+	controllers.View(res, req, controllers.TplHome([]string{"index"}), nil, nil)
 }
 
 //HomeSignup GET /signup
 func HomeSignup(res http.ResponseWriter, req *http.Request) {
-	view(res, req, tplhome([]string{"signup"}), modelUser.NewUser(), nil)
+	controllers.View(res, req, controllers.TplHome([]string{"signup"}), modelUser.NewUser(), nil)
 }
 
 //HomeSignupSubmit POST /signup
 func HomeSignupSubmit(res http.ResponseWriter, req *http.Request) {
 	err := req.ParseForm()
-	if return500(res, err) {
+	if controllers.Return500(res, err) {
 		return
 	}
 
@@ -96,7 +97,7 @@ func HomeSignupSubmit(res http.ResponseWriter, req *http.Request) {
 		ferr := []models.FieldError{
 			{FieldName: "", Err: modelUser.ErrorUserPassRepass},
 		}
-		view(res, req, tplhome([]string{"signup"}), user, ferr)
+		controllers.View(res, req, controllers.TplHome([]string{"signup"}), user, ferr)
 		return
 	}
 
@@ -104,26 +105,9 @@ func HomeSignupSubmit(res http.ResponseWriter, req *http.Request) {
 
 	user, ferr := modelUser.PutUser(user)
 	if len(ferr) > 0 {
-		view(res, req, tplhome([]string{"signup"}), user, ferr)
+		controllers.View(res, req, controllers.TplHome([]string{"signup"}), user, ferr)
 		return
 	}
 
 	dologin(res, req, user)
-}
-
-func dologin(res http.ResponseWriter, req *http.Request, user modelUser.User) {
-
-	ssCookie, err := req.Cookie(config.SessionCookieName)
-	if return500(res, err) {
-		return
-	}
-
-	newsession := modelSession.NewSession(ssCookie.Value, user.ID)
-	_, ferr := modelSession.PutSession(newsession)
-	if len(ferr) > 0 {
-		return500(res, ferr[0].Err)
-		return
-	}
-
-	view(res, req, tplhome([]string{"index"}), nil, nil)
 }

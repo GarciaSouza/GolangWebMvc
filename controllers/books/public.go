@@ -1,6 +1,7 @@
-package controllers
+package books
 
 import (
+	"finance/controllers"
 	"finance/models"
 	modelBook "finance/models/book"
 	"net/http"
@@ -14,11 +15,11 @@ import (
 func BookIndex(res http.ResponseWriter, req *http.Request) {
 	bks, err := modelBook.AllBooks()
 
-	if return500(res, err) {
+	if controllers.Return500(res, err) {
 		return
 	}
 
-	view(res, req, tplbooks([]string{"index"}), bks, nil)
+	controllers.View(res, req, controllers.TplBooks([]string{"index"}), bks, nil)
 }
 
 //BookShow GET /books/:id
@@ -37,20 +38,20 @@ func BookShow(res http.ResponseWriter, req *http.Request) {
 	}
 
 	bk, err := modelBook.OneBookByID(bson.ObjectIdHex(id))
-	if return500(res, err) {
+	if controllers.Return500(res, err) {
 		return
 	}
 
-	view(res, req, tplbooks([]string{"show"}), bk, nil)
+	controllers.View(res, req, controllers.TplBooks([]string{"show"}), bk, nil)
 }
 
 //BookNew GET /books/new
 func BookNew(res http.ResponseWriter, req *http.Request) {
-	if !isUserAuthorized(res, req, []string{"Admin"}) {
+	if !controllers.IsUserAuthorized(res, req, []string{"Admin"}) {
 		return
 	}
 
-	view(res, req, tplbooks([]string{"new", "form"}), modelBook.NewBook(), nil)
+	controllers.View(res, req, controllers.TplBooks([]string{"new", "form"}), modelBook.NewBook(), nil)
 }
 
 //BookCreate POST /books
@@ -58,21 +59,21 @@ func BookCreate(res http.ResponseWriter, req *http.Request) {
 	var ferr []models.FieldError
 
 	bk := modelBook.NewBook()
-	tpladdr := tplbooks([]string{"new", "form"})
+	tpladdr := controllers.TplBooks([]string{"new", "form"})
 
-	if bk, ferr = parsebook(bk, req); ferr != nil && len(ferr) > 0 {
-		view(res, req, tpladdr, bk, ferr)
+	if bk, ferr = controllers.ParseBook(bk, req); ferr != nil && len(ferr) > 0 {
+		controllers.View(res, req, tpladdr, bk, ferr)
 		return
 	}
 
 	if bk, ferr = modelBook.PutBook(bk); ferr != nil && len(ferr) > 0 {
-		view(res, req, tpladdr, bk, ferr)
+		controllers.View(res, req, tpladdr, bk, ferr)
 		return
 	}
 
-	tpladdr = tplbooks([]string{"show"})
+	tpladdr = controllers.TplBooks([]string{"show"})
 
-	view(res, req, tpladdr, bk, nil)
+	controllers.View(res, req, tpladdr, bk, nil)
 }
 
 //BookEdit GET /books/:id/edit
@@ -91,11 +92,11 @@ func BookEdit(res http.ResponseWriter, req *http.Request) {
 	}
 
 	bk, err := modelBook.OneBookByID(bson.ObjectIdHex(id))
-	if return500(res, err) {
+	if controllers.Return500(res, err) {
 		return
 	}
 
-	view(res, req, tplbooks([]string{"edit", "form"}), bk, nil)
+	controllers.View(res, req, controllers.TplBooks([]string{"edit", "form"}), bk, nil)
 }
 
 //BookUpdate POST /books/:id
@@ -119,21 +120,21 @@ func BookUpdate(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	tpladdr := tplbooks([]string{"edit", "form"})
+	tpladdr := controllers.TplBooks([]string{"edit", "form"})
 
-	if newbk, ferr := parsebook(*bk, req); ferr != nil && len(ferr) > 0 {
-		view(res, req, tpladdr, newbk, ferr)
+	if newbk, ferr := controllers.ParseBook(*bk, req); ferr != nil && len(ferr) > 0 {
+		controllers.View(res, req, tpladdr, newbk, ferr)
 		return
 	}
 
 	if newbk, ferr := modelBook.UpdateBook(*bk); ferr != nil && len(ferr) > 0 {
-		view(res, req, tpladdr, newbk, ferr)
+		controllers.View(res, req, tpladdr, newbk, ferr)
 		return
 	}
 
-	tpladdr = tplbooks([]string{"show"})
+	tpladdr = controllers.TplBooks([]string{"show"})
 
-	view(res, req, tpladdr, bk, nil)
+	controllers.View(res, req, tpladdr, bk, nil)
 }
 
 //BookDelete GET /books/:id/delete
@@ -152,11 +153,11 @@ func BookDelete(res http.ResponseWriter, req *http.Request) {
 	}
 
 	bk, err := modelBook.OneBookByID(bson.ObjectIdHex(id))
-	if return500(res, err) {
+	if controllers.Return500(res, err) {
 		return
 	}
 
-	view(res, req, tplbooks([]string{"delete"}), bk, nil)
+	controllers.View(res, req, controllers.TplBooks([]string{"delete"}), bk, nil)
 }
 
 //BookDeleteConfirm POST /books/:id/delete
@@ -184,16 +185,16 @@ func BookDeleteConfirm(res http.ResponseWriter, req *http.Request) {
 
 	if ferr = modelBook.DeleteBook(*bk); ferr != nil && len(ferr) > 0 {
 		tpladdr := []string{
-			path.Join("views", "books", "delete.gohtml"),
+			path.Join("controllers.views", "books", "delete.gohtml"),
 		}
-		view(res, req, tpladdr, bk, ferr)
+		controllers.View(res, req, tpladdr, bk, ferr)
 		return
 	}
 
 	bks, err := modelBook.AllBooks()
-	if return500(res, err) {
+	if controllers.Return500(res, err) {
 		return
 	}
 
-	view(res, req, tplbooks([]string{"index"}), bks, nil)
+	controllers.View(res, req, controllers.TplBooks([]string{"index"}), bks, nil)
 }

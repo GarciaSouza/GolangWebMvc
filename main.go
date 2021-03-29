@@ -4,7 +4,8 @@ import (
 	"finance/config"
 	"finance/config/db"
 	"finance/config/log"
-	"finance/controllers"
+	controllerBooks "finance/controllers/books"
+	controllerHome "finance/controllers/home"
 	modelBook "finance/models/book"
 	modelUser "finance/models/user"
 
@@ -143,10 +144,10 @@ func books(res http.ResponseWriter, req *http.Request) {
 	setSessionCookie(res, req)
 	if req.Method == http.MethodGet {
 		// GET /books
-		controllers.BookIndex(res, req)
+		controllerBooks.BookIndex(res, req)
 	} else if req.Method == http.MethodPost {
 		// POST /books
-		controllers.BookCreate(res, req)
+		controllerBooks.BookCreate(res, req)
 	} else {
 		http.Error(res, http.StatusText(404), http.StatusNotFound)
 	}
@@ -172,10 +173,10 @@ func booksID(res http.ResponseWriter, req *http.Request) {
 		if len(paths) == 2 {
 			if id == "new" {
 				// GET /books/new
-				controllers.BookNew(res, req)
+				controllerBooks.BookNew(res, req)
 			} else if bson.IsObjectIdHex(id) {
 				// GET /books/:id
-				controllers.BookShow(res, req)
+				controllerBooks.BookShow(res, req)
 			} else {
 				http.Error(res, http.StatusText(400), http.StatusBadRequest)
 			}
@@ -185,10 +186,10 @@ func booksID(res http.ResponseWriter, req *http.Request) {
 
 				if action == "edit" {
 					// GET /books/:id/edit
-					controllers.BookEdit(res, req)
+					controllerBooks.BookEdit(res, req)
 				} else if action == "delete" {
 					// GET /books/:id/delete
-					controllers.BookDelete(res, req)
+					controllerBooks.BookDelete(res, req)
 				} else {
 					http.Error(res, http.StatusText(400), http.StatusBadRequest)
 				}
@@ -202,10 +203,10 @@ func booksID(res http.ResponseWriter, req *http.Request) {
 		if bson.IsObjectIdHex(id) {
 			if len(paths) == 2 {
 				// POST /books/:id
-				controllers.BookUpdate(res, req)
+				controllerBooks.BookUpdate(res, req)
 			} else if len(paths) == 3 && paths[2] == "delete" {
 				// POST /books/:id/delete
-				controllers.BookDeleteConfirm(res, req)
+				controllerBooks.BookDeleteConfirm(res, req)
 			} else {
 				http.Error(res, http.StatusText(400), http.StatusBadRequest)
 			}
@@ -220,7 +221,7 @@ func booksID(res http.ResponseWriter, req *http.Request) {
 func home(res http.ResponseWriter, req *http.Request) {
 	setSessionCookie(res, req)
 	if req.Method == http.MethodGet {
-		controllers.HomeIndex(res, req)
+		controllerHome.HomeIndex(res, req)
 	} else {
 		http.Error(res, http.StatusText(404), http.StatusNotFound)
 	}
@@ -229,7 +230,7 @@ func home(res http.ResponseWriter, req *http.Request) {
 func logout(res http.ResponseWriter, req *http.Request) {
 	setSessionCookie(res, req)
 	if req.Method == http.MethodGet {
-		controllers.HomeLogout(res, req)
+		controllerHome.HomeLogout(res, req)
 	} else {
 		http.Error(res, http.StatusText(404), http.StatusNotFound)
 	}
@@ -238,9 +239,9 @@ func logout(res http.ResponseWriter, req *http.Request) {
 func login(res http.ResponseWriter, req *http.Request) {
 	setSessionCookie(res, req)
 	if req.Method == http.MethodGet {
-		controllers.HomeLogin(res, req)
+		controllerHome.HomeLogin(res, req)
 	} else if req.Method == http.MethodPost {
-		controllers.HomeLoginSubmit(res, req)
+		controllerHome.HomeLoginSubmit(res, req)
 	} else {
 		http.Error(res, http.StatusText(404), http.StatusNotFound)
 	}
@@ -249,9 +250,9 @@ func login(res http.ResponseWriter, req *http.Request) {
 func signup(res http.ResponseWriter, req *http.Request) {
 	setSessionCookie(res, req)
 	if req.Method == http.MethodGet {
-		controllers.HomeSignup(res, req)
+		controllerHome.HomeSignup(res, req)
 	} else if req.Method == http.MethodPost {
-		controllers.HomeSignupSubmit(res, req)
+		controllerHome.HomeSignupSubmit(res, req)
 	} else {
 		http.Error(res, http.StatusText(404), http.StatusNotFound)
 	}
